@@ -134,13 +134,6 @@ Item { // Bar content region
                 Layout.fillHeight: false
             }
 
-            HorizontalBarSeparator {}
-
-            VerticalDateWidget {
-                Layout.fillWidth: true
-                Layout.fillHeight: false
-            }
-
             HorizontalBarSeparator {
                 visible: Battery.available
             }
