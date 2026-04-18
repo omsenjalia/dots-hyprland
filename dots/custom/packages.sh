@@ -26,6 +26,7 @@ custom_packages() {
       ollama
       obs-studio
       vlc
+      vesktop
 
     # Add your packages below, one per line, keeping the # prefix:
     # example-package
