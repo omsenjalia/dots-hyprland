@@ -27,6 +27,7 @@ custom_packages() {
       obs-studio
       vlc
       vesktop
+      hermes-agent-git
 
     # Add your packages below, one per line, keeping the # prefix:
     # example-package
