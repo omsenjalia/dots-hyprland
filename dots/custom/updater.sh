@@ -29,6 +29,10 @@ Options:
   --only-hyprland     Only update hyprland configs
   --only-hypr         Only update hyprland configs (alias)
   --no-reload         Don't reload hyprland/quickshell after update
+  --diff              Show diff between current and new configs (exits after showing)
+  --status            Check if configs differ from repo (no changes made)
+  --list-backups      List available backups
+  --rollback          Restore from the most recent backup
 
 Examples:
   ./custom/updater.sh                  # Interactive mode with backup
@@ -58,6 +62,10 @@ SKIP_BACKUP=false
 ONLY_QUICKSHELL=false
 ONLY_HYPRLAND=false
 NO_RELOAD=false
+SHOW_DIFF=false
+CHECK_STATUS=false
+LIST_BACKUPS=false
+ROLLBACK=false
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
@@ -90,6 +98,22 @@ while [[ $# -gt 0 ]]; do
       NO_RELOAD=true
       shift
       ;;
+    --diff)
+      SHOW_DIFF=true
+      shift
+      ;;
+    --status)
+      CHECK_STATUS=true
+      shift
+      ;;
+    --list-backups)
+      LIST_BACKUPS=true
+      shift
+      ;;
+    --rollback)
+      ROLLBACK=true
+      shift
+      ;;
     *)
       echo "Unknown option: $1"
       showhelp
@@ -115,6 +139,167 @@ BACKUP_DIR="${HOME}/ii-original-dots-backup"
 # Dry run mode
 if [[ "$DRY_RUN" == true ]]; then
   echo -e "${STY_CYAN}[DRY RUN] Would perform the following actions:${STY_RST}"
+fi
+
+# Set XDG defaults if not loaded
+XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
+BACKUP_DIR="${HOME}/ii-original-dots-backup"
+
+# Function to find the most recent backup
+get_latest_backup() {
+  if [[ -d "$BACKUP_DIR" ]]; then
+    ls -1dt "${BACKUP_DIR}/"* 2>/dev/null | head -1
+  fi
+}
+
+# Rollback function
+rollback_from_backup() {
+  local latest_backup
+  latest_backup=$(get_latest_backup)
+
+  if [[ -z "$latest_backup" ]]; then
+    echo -e "${STY_RED}No backup found in ${BACKUP_DIR}${STY_RST}"
+    exit 1
+  fi
+
+  echo -e "${STY_CYAN}Found backup: $(basename "$latest_backup")${STY_RST}"
+
+  if [[ "$AUTO_CONFIRM" != true ]]; then
+    echo -e "${STY_YELLOW}This will restore configs from the backup.${STY_RST}"
+    read -p "Continue? [y/N] " -n 1 -r
+    echo ""
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+      echo "Aborted."
+      exit 1
+    fi
+  fi
+
+  # Restore each item from backup
+  for item in "$latest_backup/"*; do
+    if [[ -e "$item" ]]; then
+      local name
+      name=$(basename "$item")
+      local dest="$XDG_CONFIG_HOME/$name"
+      # Handle .local/share paths
+      if [[ "$name" == "konsole" ]] || [[ "$name" == "icons" ]]; then
+        dest="$XDG_DATA_HOME/$name"
+      fi
+
+      if [[ "$DRY_RUN" == true ]]; then
+        echo -e "${STY_CYAN}[DRY RUN] Would restore: $item -> $dest${STY_RST}"
+      else
+        # Backup current before restoring
+        if [[ -e "$dest" ]]; then
+          mv "$dest" "${dest}.pre-rollback-$(date +%Y%m%d_%H%M%S)"
+        fi
+        mkdir -p "$(dirname "$dest")"
+        cp -r "$item" "$dest"
+        echo -e "${STY_GREEN}Restored: $dest${STY_RST}"
+      fi
+    fi
+  done
+
+  echo -e "${STY_GREEN}Rollback complete!${STY_RST}"
+  exit 0
+}
+
+# Show diff between two files/dirs
+show_item_diff() {
+  local repo_item="$1"
+  local installed_item="$2"
+
+  if [[ ! -e "$installed_item" ]]; then
+    echo -e "${STY_YELLOW}[NEW] ${installed_item#$HOME/} - does not exist in installed config${STY_RST}"
+    return
+  fi
+
+  if [[ -f "$repo_item" ]]; then
+    if ! diff -q "$repo_item" "$installed_item" > /dev/null 2>&1; then
+      echo ""
+      echo -e "${STY_CYAN}=== ${installed_item#$HOME/} ===${STY_RST}"
+      diff -u "$installed_item" "$repo_item" 2>/dev/null | head -50 || diff "$installed_item" "$repo_item" 2>/dev/null | head -50 || echo "Files differ (binary or diff not available)"
+      CHANGES_FOUND=true
+    fi
+  elif [[ -d "$repo_item" ]]; then
+    # Use rsync dry-run to check for differences
+    local diff_output
+    diff_output=$(rsync -avnc "$repo_item/" "$installed_item/" 2>/dev/null | grep -E "^(<f|>f|cL|.)" || true)
+    if [[ -n "$diff_output" ]]; then
+      echo ""
+      echo -e "${STY_CYAN}=== ${installed_item#$HOME/}/ (directory changes) ===${STY_RST}"
+      echo "$diff_output"
+      CHANGES_FOUND=true
+    fi
+  fi
+}
+
+# Check status of configs
+check_config_status() {
+  local files_to_check=()
+  CHANGES_FOUND=false
+
+  echo -e "${STY_CYAN}Checking config status...${STY_RST}"
+
+  # Add quickshell files
+  if [[ -d "${REPO_ROOT}/dots/.config/quickshell" ]]; then
+    files_to_check+=("${REPO_ROOT}/dots/.config/quickshell" "$XDG_CONFIG_HOME/quickshell")
+  fi
+
+  # Add hyprland files
+  for item in hyprland.conf hyprlock.conf monitors.conf workspaces.conf hypridle.conf; do
+    if [[ -f "${REPO_ROOT}/dots/.config/hypr/$item" ]]; then
+      files_to_check+=("${REPO_ROOT}/dots/.config/hypr/$item" "$XDG_CONFIG_HOME/hypr/$item")
+    fi
+  done
+
+  if [[ -d "${REPO_ROOT}/dots/.config/hypr/hyprland" ]]; then
+    files_to_check+=("${REPO_ROOT}/dots/.config/hypr/hyprland" "$XDG_CONFIG_HOME/hypr/hyprland")
+  fi
+
+  for ((i=0; i<${#files_to_check[@]}; i+=2)); do
+    show_item_diff "${files_to_check[i]}" "${files_to_check[i+1]}"
+  done
+
+  if [[ "$CHANGES_FOUND" == true ]]; then
+    echo ""
+    echo -e "${STY_YELLOW}Configs differ from repository. Run without --status to update.${STY_RST}"
+    exit 1
+  else
+    echo -e "${STY_GREEN}All configs match the repository.${STY_RST}"
+    exit 0
+  fi
+}
+
+# Execute rollback if requested
+if [[ "$ROLLBACK" == true ]]; then
+  rollback_from_backup
+fi
+
+# List available backups
+if [[ "$LIST_BACKUPS" == true ]]; then
+  echo -e "${STY_CYAN}Available backups:${STY_RST}"
+  if [[ -d "$BACKUP_DIR" ]]; then
+    for backup_dir in "$BACKUP_DIR/"*/; do
+      if [[ -d "$backup_dir" ]]; then
+        size=$(du -sh "$backup_dir" 2>/dev/null | cut -f1) || size="?"
+        echo "  $(basename "$backup_dir") (${size})"
+      fi
+    done
+    echo ""
+    latest=$(get_latest_backup)
+    if [[ -n "$latest" ]]; then
+      echo -e "${STY_GREEN}Latest: $(basename "$latest")${STY_RST}"
+    fi
+  else
+    echo "  No backups found in ${BACKUP_DIR}"
+  fi
+  exit 0
+fi
+
+# Execute status check if requested
+if [[ "$CHECK_STATUS" == true ]] || [[ "$SHOW_DIFF" == true ]]; then
+  check_config_status
 fi
 
 # Confirmation prompt (skip if dry-run)

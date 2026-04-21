@@ -192,7 +192,8 @@ Singleton {
             lines.forEach(line => {
                 if (line.includes("ethernet") && line.includes("connected"))
                     hasEthernet = true;
-                else if (line.includes("wifi:")) {
+                else if (line.startsWith("wifi:") && !line.startsWith("wifi-p2p:")) {
+                    // Only match primary wifi (not wifi-p2p virtual devices)
                     if (line.includes("disconnected")) {
                         wifiStatus = "disconnected"
                     }
