@@ -7,6 +7,40 @@ All changes relative to upstream `end-4/dots-hyprland`. Entries are in **reverse
 
 ---
 
+## [FIX] WiFi Status Flickering (MT7921 P2P Device)
+
+**Date:** 2026-04-21
+
+### What changed
+
+Fixed network status flickering caused by the MediaTek MT7921 WiFi driver creating a virtual `wifi-p2p` device (p2p-dev-wlan0) alongside the primary WiFi interface. The Quickshell network service was detecting both devices:
+- `wifi:connected` (primary wlan0 - should count)
+- `wifi-p2p:disconnected` (virtual P2P device - incorrectly caused "disconnected" status)
+
+Changed the device type detection from `line.includes("wifi:")` to `line.startsWith("wifi:") && !line.startsWith("wifi-p2p:")` to only track physical WiFi interfaces.
+
+### Files affected
+
+#### Modified
+- `ii/services/Network.qml` — Line 195: Exclude wifi-p2p virtual devices from WiFi status detection
+
+### How to verify
+
+```bash
+# Check your network device types
+nmcli -t -f TYPE,STATE d status
+
+# Should show (without wifi-p2p interference):
+# wifi:connected
+# loopback:unmanaged
+
+# Previously (caused flickering):
+# wifi:connected
+# wifi-p2p:disconnected  <-- Now ignored
+```
+
+---
+
 ## [FIX] System Settings Persistence
 
 **Date:** 2026-03-30
