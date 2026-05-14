@@ -1,0 +1,122 @@
+name: Weekly Summary
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'  # Every Sunday at 00:00 UTC
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  weekly-summary:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Get full history for diff
+          
+      - name: Set up git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+      - name: Calculate week range
+        id: week-calc
+        run: |
+          # Get current date
+          TODAY=$(date -u +%Y-%m-%d)
+          # Get start of week (Sunday)
+          START_OF_WEEK=$(date -u -d "last sunday" +%Y-%m-%d)
+          # Get end of week (Saturday)
+          END_OF_WEEK=$(date -u -d "next saturday" +%Y-%m-%d)
+          # Get month and week number for filename
+          MONTH=$(date -u -d "$START_OF_WEEK" +%B | tr '[:upper:]' '[:lower:]')
+          WEEK_NUM=$(date -u -d "$START_OF_WEEK" +%U)
+          # Adjust week number to be 1-indexed within the month
+          DAY_OF_MONTH=$(date -u -d "$START_OF_WEEK" +%d)
+          WEEK_IN_MONTH=$(( (DAY_OF_MONTH - 1) / 7 + 1 ))
+          
+          echo "start_date=$START_OF_WEEK" >> $GITHUB_OUTPUT
+          echo "end_date=$END_OF_WEEK" >> $GITHUB_OUTPUT
+          echo "month=$MONTH" >> $GITHUB_OUTPUT
+          echo "week_in_month=$WEEK_IN_MONTH" >> $GITHUB_OUTPUT
+          echo "filename=${MONTH}-week-${WEEK_IN_MONTH}.md" >> $GITHUB_OUTPUT
+          
+      - name: Get weekly commits
+        id: weekly-commits
+        run: |
+          START_OF_WEEK=${{ steps.week-calc.outputs.start_date }}
+          END_OF_WEEK=${{ steps.week-calc.outputs.end_date }}
+          
+          # Get commits since start of week
+          COMMITS=$(git log --since="$START_OF_WEEK" --until="$END_OF_WEEK" --pretty=format:"%h %s <%an> %ad" --date=short)
+          
+          if [ -z "$COMMITS" ]; then
+            echo "No commits found for week $START_OF_WEEK to $END_OF_WEEK"
+            echo "has_commits=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          echo "has_commits=true" >> $GITHUB_OUTPUT
+          echo "commits<<EOF" >> $GITHUB_OUTPUT
+          echo "$COMMITS"
+          echo "EOF"
+          
+      - name: Generate weekly summary
+        if: steps.weekly-commits.outputs.has_commits == 'true'
+        run: |
+          START_OF_WEEK=${{ steps.week-calc.outputs.start_date }}
+          END_OF_WEEK=${{ steps.week-calc.outputs.end_date }}
+          FILENAME=${{ steps.week-calc.outputs.filename }}
+          
+          # Create directory if it doesn't exist
+          mkdir -p docs/src/content/docs/ai-agents/weekly-summaries
+          
+          FILE_PATH="docs/src/content/docs/ai-agents/weekly-summaries/$FILENAME"
+          
+          {
+            echo "---"
+            echo "title: \"Weekly Summary: ${{ steps.week-calc.outputs.month }} week ${{ steps.week-calc.outputs.week_in_month }}\""
+            echo "date: $(date -u +%Y-%m-%d)"
+            echo "week_start: ${{ steps.week-calc.outputs.start_date }}"
+            echo "week_end: ${{ steps.week-calc.outputs.end_date }}"
+            echo "---"
+            echo ""
+            echo "# Weekly Summary: ${{ steps.week-calc.outputs.month }} week ${{ steps.week-calc.outputs.week_in_month }}"
+            echo ""
+            echo "**Period:** ${{ steps.week-calc.outputs.start_date }} to ${{ steps.week-calc.outputs.end_date }}"
+            echo ""
+            echo "## Commits"
+            echo ""
+            
+            # Process each commit
+            git log --since="${{ steps.week-calc.outputs.start_date }}" --until="${{ steps.week-calc.outputs.end_date }}" --pretty=format:"%h %s <%an> %ad" --date=short | while read commit; do
+              if [ -n "$commit" ]; then
+                # Extract commit hash
+                commit_hash=$(echo "$commit" | awk '{print $1}')
+                # Get full commit details
+                echo "### Commit: $commit_hash"
+                echo ""
+                git show --stat $commit_hash | head -20
+                echo ""
+                echo "**Message:**"
+                echo ""
+                git show --no-patch --format="%B" $commit_hash | sed 's/^/> /'
+                echo ""
+                echo "---"
+                echo ""
+              fi
+            done
+            
+          } > "$FILE_PATH"
+          
+      - name: Commit weekly summary
+        if: steps.weekly-commits.outputs.has_commits == 'true'
+        run: |
+          git add docs/src/content/docs/ai-agents/weekly-summaries/
+          # Check if there are changes to commit
+          if ! git diff --cached --quiet; then
+            git commit -m "docs(weekly-summary): add ${{ steps.week-calc.outputs.filename }}"
+            git push
+          fi
