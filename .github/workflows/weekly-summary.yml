@@ -53,7 +53,7 @@ jobs:
           COMMITS=$(git log --since="$START_OF_WEEK" --until="$END_OF_WEEK" --pretty=format:"%h %s <%an> %ad" --date=short)
           
           if [ -z "$COMMITS" ]; then
-            echo "No commits found for week $START_OF_WEEK to $END_OF_WEEK"
+            echo "No credits found for week $START_OF_WEEK to $END_OF_WEEK"
             echo "has_commits=false" >> $GITHUB_OUTPUT
             exit 0
           fi
@@ -111,12 +111,34 @@ jobs:
             
           } > "$FILE_PATH"
           
-      - name: Commit weekly summary
+      - name: Delete weekly changelog entries
+        if: steps.weekly-commits.outputs.has_commits == 'true'
+        run: |
+          START_OF_WEEK=${{ steps.week-calc.outputs.start_date }}
+          END_OF_WEEK=${{ steps.week-calc.outputs.end_date }}
+          
+          # Find and delete changelog entries for this week
+          # Changelog entries are named: YYYY-MM-DD-<short-sha>.md
+          find docs/src/content/docs/ai-agents/changelog -name "*.md" -type f | while read changelog_file; do
+            # Extract date from filename (YYYY-MM-DD)
+            filename=$(basename "$changelog_file")
+            if [[ $filename =~ ^([0-9]{4}-[0-9]{2}-[0-9]{2})- ]]; then
+              file_date="${BASH_REMATCH[1]}"
+              # Check if file_date is between START_OF_WEEK and END_OF_WEEK (inclusive)
+              if [[ "$file_date" >= "$START_OF_WEEK" && "$file_date" <= "$END_OF_WEEK" ]]; then
+                echo "Deleting changelog entry for week: $filename"
+                rm "$changelog_file"
+              fi
+            fi
+          done
+          
+      - name: Commit weekly summary and changelog deletions
         if: steps.weekly-commits.outputs.has_commits == 'true'
         run: |
           git add docs/src/content/docs/ai-agents/weekly-summaries/
+          git add docs/src/content/docs/ai-agents/changelog/ || true  # Add any deletions
           # Check if there are changes to commit
           if ! git diff --cached --quiet; then
-            git commit -m "docs(weekly-summary): add ${{ steps.week-calc.outputs.filename }}"
+            git commit -m "docs(weekly-summary): add ${{ steps.week-calc.outputs.filename }} and remove weekly changelog entries"
             git push
           fi
