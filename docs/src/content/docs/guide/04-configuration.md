@@ -173,3 +173,126 @@ Colors are auto-generated from your wallpaper using matugen (Material Design 3):
 ```
 
 The color system uses 5 elevation layers (0–4) with transparency auto-calculated from wallpaper vibrancy. Override in `Appearance.qml` for development.
+
+## Miscellaneous
+
+### Cloudflare WARP
+
+WARP can help bypass ISP restrictions and provide faster internet. A toggle button is available in the right sidebar.
+
+**Setup:**
+
+1. Install the package:
+   ```bash
+   yay -S cloudflare-warp-bin
+   ```
+2. Enable and start the service:
+   ```bash
+   sudo systemctl enable warp-svc
+   sudo systemctl start warp-svc
+   ```
+3. Register your device:
+   ```bash
+   warp-cli registration new
+   # Accept the ToS when prompted
+   ```
+4. Test the connection:
+   ```bash
+   warp-cli connect
+   warp-cli disconnect
+   # Both should output "Success"
+   ```
+5. Verify the sidebar toggle works:
+   ```bash
+   warp-cli status
+   # Shows "Connected" or "Disconnected"
+   ```
+
+You can verify externally at [1.1.1.1 Connection Information](https://1.1.1.1/help).
+
+**Optional:** Configure the operating mode:
+```bash
+warp-cli mode warp+dot  # WARP tunnel + DNS-over-TLS
+# See: warp-cli mode --help
+```
+
+### UI scaling
+
+#### Scale everything (monitors)
+
+Edit `~/.config/hypr/custom/general.lua` following the [Hyprland Monitors guide](https://wiki.hypr.land/Configuring/Basics/Monitors/), or use `nwg-look` (install separately) for a GUI.
+
+#### Scale the shell only
+
+Two methods:
+
+**Method 1: Quickshell pragma** (shell-only, not update-friendly)
+
+Edit `~/.config/quickshell/ii/shell.qml` and uncomment/adjust:
+```
+//@ pragma Env QT_SCALE_FACTOR=1
+```
+Restart Quickshell with `Ctrl + Super + R`.
+
+**Method 2: Hyprland env var** (affects all Qt apps, update-friendly)
+
+Edit `~/.config/hypr/custom/env.lua`:
+```lua
+hl.env("QT_SCALE_FACTOR", "1.5")
+```
+Requires re-login to apply.
+
+:::tip
+Use Method 1 first to find your preferred scale factor, then apply it via Method 2 to avoid re-logging multiple times.
+:::
+
+### Font size
+
+#### GTK apps
+
+Use `gnome-tweaks` for a GUI, or:
+```bash
+# Syntax
+gsettings set org.gnome.desktop.interface font-name 'FONT_NAME FONT_SIZE'
+
+# Default for these dotfiles
+gsettings set org.gnome.desktop.interface font-name 'Rubik 11'
+```
+
+#### Qt apps
+
+Use the KDE System Settings app to customize fonts.
+
+### Screen lock & timeout
+
+#### Timeout configuration
+
+Edit `~/.config/hypr/hypridle.conf` to adjust idle timeouts. See the [Hyprland hypridle docs](https://wiki.hypr.land/Hypr-Ecosystem/hypridle/) for reference.
+
+#### Using an alternative lock screen
+
+Example with `swaylock` (see [Arch Wiki: Session lock](https://wiki.archlinux.org/title/Session_lock)):
+
+1. Edit `~/.config/hypr/hypridle.conf`:
+   ```conf
+   $lock_cmd = swaylock
+   ```
+2. Restart hypridle:
+   ```bash
+   pkill hypridle; hypridle & disown
+   ```
+
+Now `loginctl lock-session` will use your chosen lock screen.
+
+### VSCode color theming
+
+Colors from your wallpaper can be applied to VSCode:
+
+1. Install the [Material Code](https://marketplace.visualstudio.com/items?itemName=rakib13332.material-code) extension
+2. Select a wallpaper — colors are applied automatically
+3. Optional: Change the `material-code.syntaxTheme` setting
+4. Run the command `Material Code: Apply styles` to inject rounded corners
+
+:::note
+If VSCode reports a "corrupt installation", safely select "Don't show again". The color script lives at `dots/.config/quickshell/ii/scripts/colors/code/material-code-set-color.sh`.
+:::
