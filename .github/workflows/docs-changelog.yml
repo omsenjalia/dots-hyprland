@@ -7,78 +7,95 @@ on:
 jobs:
   changelog:
     runs-on: ubuntu-latest
-    # Skip if the push only touched changelog files (prevent loop)
-    if: >-
-      !startsWith(github.event.head_commit.message, 'docs(changelog):')
     permissions:
       contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 0
 
-      - name: Check if only changelog files changed
-        id: check
+      - name: Generate changelog entries
+        id: generate
         run: |
-          files=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || echo "")
-          if echo "$files" | grep -qvE '^docs/src/content/docs/ai-agents/changelog/'; then
-            echo "should_run=true" >> "$GITHUB_OUTPUT"
+          COMMITS_JSON=$(cat << 'EOF'
+          ${{ toJson(github.event.commits) }}
+          EOF
+          )
+          
+          # Check if there are any commits
+          if [ "$COMMITS_JSON" = 'null' ] || [ "$COMMITS_JSON" = '[]' ]; then
+            echo "No commits found in event payload."
+            echo "created_entries=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          
+          ENTRIES_CREATED=0
+          
+          echo "$COMMITS_JSON" | jq -c '.[]' | while read -r commit; do
+            COMMIT_SHA=$(echo "$commit" | jq -r '.id')
+            COMMIT_MSG=$(echo "$commit" | jq -r '.message')
+            
+            # Skip bot commits
+            if [[ "$COMMIT_MSG" == "docs(changelog):"* ]] || [[ "$COMMIT_MSG" == "docs(weekly-summary):"* ]]; then
+              echo "Skipping bot commit: $COMMIT_SHA"
+              continue
+            fi
+            
+            SHORT_SHA="${COMMIT_SHA:0:7}"
+            COMMIT_DATE=$(git log -1 --format='%cd' --date=short "$COMMIT_SHA" 2>/dev/null || echo $(date +%Y-%m-%d))
+            COMMIT_SUBJECT=$(echo "$COMMIT_MSG" | head -n 1)
+            COMMIT_AUTHOR=$(echo "$commit" | jq -r '.author.name')
+            
+            FILENAME="docs/src/content/docs/ai-agents/changelog/${COMMIT_DATE}-${SHORT_SHA}.md"
+            mkdir -p "$(dirname "$FILENAME")"
+            
+            # Get changed files for this specific commit
+            CHANGED_FILES=$(git diff --name-only "${COMMIT_SHA}^" "${COMMIT_SHA}" 2>/dev/null | sed 's/^/- `/' | sed 's/$/`/' || echo "- *(unable to determine changed files)*")
+            
+            {
+              echo "---"
+              echo "title: \"${COMMIT_SUBJECT}\" "
+              echo "date: ${COMMIT_DATE}"
+              echo "commit: ${COMMIT_SHA}"
+              echo "author: ${COMMIT_AUTHOR}"
+              echo "---"
+              echo ""
+              echo "## Changed Files"
+              echo ""
+              echo "$CHANGED_FILES"
+              echo ""
+              echo "## Commit Message"
+              echo ""
+              echo '```'
+              echo "$COMMIT_MSG"
+              echo '```'
+              echo ""
+              echo "## AI Agent Notes"
+              echo ""
+              echo "<!-- AI agents: fill this in after working on related code."
+              echo "     Explain WHY changes were made, any gotchas, and what"
+              echo "     other agents should know about this change. -->"
+            } > "$FILENAME"
+            
+            echo "Created entry for $SHORT_SHA"
+            # We use a file to track count since we are in a subshell piping from jq
+            echo "1" >> entries_created.txt
+          done
+          
+          if [ -f entries_created.txt ]; then
+            echo "created_entries=true" >> "$GITHUB_OUTPUT"
+            rm entries_created.txt
           else
-            echo "should_run=false" >> "$GITHUB_OUTPUT"
+            echo "created_entries=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Generate changelog entry
-        if: steps.check.outputs.should_run == 'true'
-        run: |
-          COMMIT_SHA="${{ github.sha }}"
-          SHORT_SHA="${COMMIT_SHA:0:7}"
-          COMMIT_DATE=$(git log -1 --format='%cs' "$COMMIT_SHA")
-          COMMIT_SUBJECT=$(git log -1 --format='%s' "$COMMIT_SHA")
-          COMMIT_BODY=$(git log -1 --format='%b' "$COMMIT_SHA")
-          COMMIT_AUTHOR=$(git log -1 --format='%an' "$COMMIT_SHA")
-
-          FILENAME="docs/src/content/docs/ai-agents/changelog/${COMMIT_DATE}-${SHORT_SHA}.md"
-          mkdir -p "$(dirname "$FILENAME")"
-
-          # Get changed files
-          CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD 2>/dev/null | sed 's/^/- `/' | sed 's/$/`/')
-
-          {
-            echo "---"
-            echo "title: \"${COMMIT_SUBJECT}\""
-            echo "date: ${COMMIT_DATE}"
-            echo "commit: ${COMMIT_SHA}"
-            echo "author: ${COMMIT_AUTHOR}"
-            echo "---"
-            echo ""
-            echo "## Changed Files"
-            echo ""
-            echo "$CHANGED_FILES"
-            echo ""
-            echo "## Commit Message"
-            echo ""
-            echo '```'
-            if [ -n "$COMMIT_BODY" ]; then
-              echo "$COMMIT_BODY"
-            else
-              echo "$COMMIT_SUBJECT"
-            fi
-            echo '```'
-            echo ""
-            echo "## AI Agent Notes"
-            echo ""
-            echo "<!-- AI agents: fill this in after working on related code."
-            echo "     Explain WHY changes were made, any gotchas, and what"
-            echo "     other agents should know about this change. -->"
-          } > "$FILENAME"
-
       - name: Commit and push
-        if: steps.check.outputs.should_run == 'true'
+        if: steps.generate.outputs.created_entries == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add docs/src/content/docs/ai-agents/changelog/
           git diff --cached --quiet && exit 0
-          git commit -m "docs(changelog): add entry for $(git log -1 --format='%h' ${{ github.sha }})"
+          git commit -m "docs(changelog): add entries for new commits"
           git push
