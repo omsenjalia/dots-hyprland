@@ -14,133 +14,113 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Get full history for diff
-          
+          fetch-depth: 0
+
       - name: Set up git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          
-      - name: Calculate week range
+
+      - name: Calculate week info
         id: week-calc
         run: |
-          # Calculate the most recent completed Sun-Sat week.
-          # Works on any day (manual dispatch) or on Sunday (cron).
-          # "last saturday" in GNU date always gives the most recent past Saturday,
-          # even when run on Saturday itself (gives 7 days ago).
-          END_OF_WEEK=$(date -u -d "last saturday" +%Y-%m-%d)
-          START_OF_WEEK=$(date -u -d "$END_OF_WEEK - 6 days" +%Y-%m-%d)
-          # git log --until is exclusive, so use the day after Saturday
-          UNTIL_DATE=$(date -u -d "$END_OF_WEEK + 1 day" +%Y-%m-%d)
-          
-          # Get month and week number for filename
-          MONTH=$(date -u -d "$START_OF_WEEK" +%B | tr '[:upper:]' '[:lower:]')
-          DAY_OF_MONTH=$(date -u -d "$START_OF_WEEK" +%d)
+          END_OF_WEEK=$(date -u -d "last saturday" +%d/%m/%y)
+          START_OF_WEEK=$(date -u -d "last saturday - 6 days" +%d/%m/%y)
+          TODAY=$(date -u +%d/%m/%y)
+
+          MONTH=$(date -u -d "last saturday" +%B | tr '[:upper:]' '[:lower:]')
+          DAY_OF_MONTH=$(date -u -d "last saturday - 6 days" +%d)
           WEEK_IN_MONTH=$(( (DAY_OF_MONTH - 1) / 7 + 1 ))
-          
+
           echo "start_date=$START_OF_WEEK" >> $GITHUB_OUTPUT
           echo "end_date=$END_OF_WEEK" >> $GITHUB_OUTPUT
-          echo "until_date=$UNTIL_DATE" >> $GITHUB_OUTPUT
+          echo "today=$TODAY" >> $GITHUB_OUTPUT
           echo "month=$MONTH" >> $GITHUB_OUTPUT
           echo "week_in_month=$WEEK_IN_MONTH" >> $GITHUB_OUTPUT
           echo "filename=${MONTH}-week-${WEEK_IN_MONTH}.md" >> $GITHUB_OUTPUT
-          
-          echo "Week range: $START_OF_WEEK to $END_OF_WEEK (git until: $UNTIL_DATE)"
-          
-      - name: Get weekly commits
-        id: weekly-commits
+
+          echo "Week: $START_OF_WEEK to $END_OF_WEEK"
+
+      - name: Check for changelog entries
+        id: collect
         run: |
-          START_OF_WEEK=${{ steps.week-calc.outputs.start_date }}
-          UNTIL_DATE=${{ steps.week-calc.outputs.until_date }}
-          
-          # --since is inclusive, --until is exclusive
-          COMMITS=$(git log --since="$START_OF_WEEK" --until="$UNTIL_DATE" --pretty=format:"%h %s <%an> %ad" --date=short)
-          
-          if [ -z "$COMMITS" ]; then
-            echo "No commits found for week $START_OF_WEEK to ${{ steps.week-calc.outputs.end_date }}"
-            echo "has_commits=false" >> $GITHUB_OUTPUT
-            exit 0
+          CHANGELOG_DIR="docs/src/content/docs/ai-agents/changelog"
+          COUNT=$(find "$CHANGELOG_DIR" -name "*.md" -type f 2>/dev/null | wc -l)
+
+          if [ "$COUNT" -eq 0 ]; then
+            echo "No changelog entries found"
+            echo "has_entries=false" >> $GITHUB_OUTPUT
+          else
+            echo "Found $COUNT changelog entries"
+            echo "has_entries=true" >> $GITHUB_OUTPUT
           fi
-          
-          echo "has_commits=true" >> $GITHUB_OUTPUT
-          echo "Found commits:"
-          echo "$COMMITS"
-          
-      - name: Generate weekly summary
-        if: steps.weekly-commits.outputs.has_commits == 'true'
+
+      - name: Generate weekly summary from all changelog entries
+        if: steps.collect.outputs.has_entries == 'true'
         run: |
-          START_OF_WEEK=${{ steps.week-calc.outputs.start_date }}
-          END_OF_WEEK=${{ steps.week-calc.outputs.end_date }}
           FILENAME=${{ steps.week-calc.outputs.filename }}
-          
-          # Create directory if it doesn't exist
+          CHANGELOG_DIR="docs/src/content/docs/ai-agents/changelog"
+
           mkdir -p docs/src/content/docs/ai-agents/weekly-summaries
-          
           FILE_PATH="docs/src/content/docs/ai-agents/weekly-summaries/$FILENAME"
-          
+
+          # Write frontmatter
           {
             echo "---"
             echo "title: \"Weekly Summary: ${{ steps.week-calc.outputs.month }} week ${{ steps.week-calc.outputs.week_in_month }}\""
-            echo "date: $(date -u +%Y-%m-%d)"
+            echo "date: ${{ steps.week-calc.outputs.today }}"
             echo "week_start: ${{ steps.week-calc.outputs.start_date }}"
             echo "week_end: ${{ steps.week-calc.outputs.end_date }}"
             echo "---"
             echo ""
-            echo "# Weekly Summary: ${{ steps.week-calc.outputs.month }} week ${{ steps.week-calc.outputs.week_in_month }}"
-            echo ""
-            echo "**Period:** ${{ steps.week-calc.outputs.start_date }} to ${{ steps.week-calc.outputs.end_date }}"
-            echo ""
-            echo "## Commits"
-            echo ""
-            
-            # Process each commit (--until is exclusive, so use today to include Saturday)
-            git log --since="${{ steps.week-calc.outputs.start_date }}" --until="${{ steps.week-calc.outputs.until_date }}" --pretty=format:"%h %s <%an> %ad" --date=short | while read commit; do
-              if [ -n "$commit" ]; then
-                # Extract commit hash
-                commit_hash=$(echo "$commit" | awk '{print $1}')
-                # Get full commit details
-                echo "### Commit: $commit_hash"
-                echo ""
-                git show --stat $commit_hash | head -20
-                echo ""
-                echo "**Message:**"
-                echo ""
-                git show --no-patch --format="%B" $commit_hash | sed 's/^/> /'
-                echo ""
-                echo "---"
-                echo ""
-              fi
-            done
-            
           } > "$FILE_PATH"
-          
-      - name: Delete weekly changelog entries
-        if: steps.weekly-commits.outputs.has_commits == 'true'
-        run: |
-          START_OF_WEEK=${{ steps.week-calc.outputs.start_date }}
-          END_OF_WEEK=${{ steps.week-calc.outputs.end_date }}
-          
-          # Find and delete changelog entries for this week
-          # Changelog entries are named: YYYY-MM-DD-<short-sha>.md
-          find docs/src/content/docs/ai-agents/changelog -name "*.md" -type f | while read changelog_file; do
-            # Extract date from filename (YYYY-MM-DD)
-            filename=$(basename "$changelog_file")
-            if [[ $filename =~ ^([0-9]{4}-[0-9]{2}-[0-9]{2})- ]]; then
-              file_date="${BASH_REMATCH[1]}"
-              # Check if file_date is between START_OF_WEEK and END_OF_WEEK (inclusive)
-              if [[ ! "$file_date" < "$START_OF_WEEK" && ! "$file_date" > "$END_OF_WEEK" ]]; then
-                echo "Deleting changelog entry for week: $filename"
-                rm "$changelog_file"
-              fi
+
+          # Compile all changelog entries, preserving their full structure
+          # (Changed Files, Commit Message, AI Agent Notes)
+          for f in $(ls -1 "$CHANGELOG_DIR"/*.md 2>/dev/null | sort); do
+            [ -f "$f" ] || continue
+
+            # Extract metadata from frontmatter
+            entry_title=$(sed -n 's/^title: *"\(.*\)"/\1/p' "$f" | head -1)
+            entry_date=$(sed -n 's/^date: *//p' "$f" | head -1)
+            entry_commit=$(sed -n 's/^commit: *//p' "$f" | head -1)
+            entry_author=$(sed -n 's/^author: *//p' "$f" | head -1)
+            short_sha="${entry_commit:0:7}"
+
+            # Convert date to dd/mm/yy if in YYYY-MM-DD format
+            if [[ "$entry_date" =~ ^([0-9]{4})-([0-9]{2})-([0-9]{2})$ ]]; then
+              entry_date="${BASH_REMATCH[3]}/${BASH_REMATCH[2]}/${BASH_REMATCH[1]:2:2}"
             fi
+
+            # Extract body (everything after the closing --- of frontmatter)
+            body=$(awk 'BEGIN{n=0} /^---$/{n++; next} n>=2{print}' "$f")
+
+            {
+              echo "### ${entry_title}"
+              echo ""
+              echo "**Date:** ${entry_date} | **Author:** ${entry_author} | **Commit:** \`${short_sha}\`"
+              echo ""
+              echo "$body"
+              echo ""
+              echo "---"
+              echo ""
+            } >> "$FILE_PATH"
           done
-          
+
+          echo "Generated weekly summary at $FILE_PATH"
+
+      - name: Delete all changelog entries
+        if: steps.collect.outputs.has_entries == 'true'
+        run: |
+          CHANGELOG_DIR="docs/src/content/docs/ai-agents/changelog"
+          echo "Deleting all changelog entries..."
+          find "$CHANGELOG_DIR" -name "*.md" -type f -print -delete
+
       - name: Commit weekly summary and changelog deletions
-        if: steps.weekly-commits.outputs.has_commits == 'true'
+        if: steps.collect.outputs.has_entries == 'true'
         run: |
           git add docs/src/content/docs/ai-agents/weekly-summaries/
-          git add docs/src/content/docs/ai-agents/changelog/ || true  # Add any deletions
-          # Check if there are changes to commit
+          git add docs/src/content/docs/ai-agents/changelog/ || true
           if ! git diff --cached --quiet; then
             git commit -m "docs(weekly-summary): add ${{ steps.week-calc.outputs.filename }} and remove weekly changelog entries"
             git push
