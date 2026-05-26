@@ -1,0 +1,25 @@
+---
+title: "404"
+description: Page not found
+template: splash
+editUrl: false
+hero:
+  title: "404"
+  tagline: "Lost in the void? This page doesn't exist."
+  actions:
+    - text: Go back home
+      link: /
+      icon: right-arrow
+      variant: primary
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+<CardGrid>
+  <Card title="Installation" icon="setting">
+    New here? Check the [Installation Guide](/guide/02-install/) to get started.
+  </Card>
+  <Card title="Usage" icon="rocket">
+    Learn how to use the keybinds and features in the [Usage Guide](/guide/03-usage/).
+  </Card>
+</CardGrid>

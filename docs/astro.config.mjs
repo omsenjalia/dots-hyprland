@@ -7,6 +7,7 @@ export default defineConfig({
     starlight({
       title: 'dots-hyprland',
       description: 'Documentation for omsenjalia/dots-hyprland — a fork of end-4/dots-hyprland (illogical-impulse)',
+      favicon: '/favicon.svg',
       logo: {
         src: './src/assets/logo.svg',
         replacesTitle: false,
@@ -20,7 +21,7 @@ export default defineConfig({
       customCss: ['./src/styles/custom.css'],
       sidebar: [
         {
-          label: 'Guide',
+          label: 'User Guide',
           autogenerate: { directory: 'guide' },
         },
         {
@@ -29,7 +30,22 @@ export default defineConfig({
         },
         {
           label: 'AI Agent Guide',
-          autogenerate: { directory: 'ai-agents' },
+          items: [
+            { label: 'Overview', link: '/ai-agents/00-overview/' },
+            { label: 'Architecture', link: '/ai-agents/01-architecture/' },
+            { label: 'Workflow', link: '/ai-agents/02-workflow/' },
+            { label: 'Updating Docs', link: '/ai-agents/03-update-docs/' },
+            {
+              label: 'Changelog',
+              autogenerate: { directory: 'ai-agents/changelog' },
+              collapsed: true,
+            },
+            {
+              label: 'Weekly Summaries',
+              autogenerate: { directory: 'ai-agents/weekly-summaries' },
+              collapsed: true,
+            },
+          ],
         },
       ],
       defaultLocale: 'root',
