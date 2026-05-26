@@ -120,6 +120,114 @@ The fork auto-starts `ollama serve` on login. The AI chat sidebar (`Super + A`) 
 ### Quick launch
 `Super + Space` launches Ollama Claude with the minimax model.
 
+## Left sidebar
+
+Open with `Super + A`. Detach into a floating window with `Super + Alt + A`.
+
+### AI chat
+
+- Type `/model` to select a model. Locally installed Ollama models are detected automatically.
+- Type `/key` for instructions on getting an API key for online models (Gemini, etc.)
+- Gemini models with tools enabled can edit your shell config. For example, tell it "hide app icons on my workspaces" and it will modify the config directly.
+- Markdown rendering and LaTeX math support are built in.
+
+### Translator
+
+Uses the `trans` command-line tool (from `translate-shell` package). Type text to translate between languages.
+
+### Anime boorus
+
+- Type `/mode` to see available image providers
+- Type one or more tags to search. Suggestions appear as you type.
+- Type a number to navigate pages of results
+
+### Tab completion
+
+In the Intelligence and Anime tabs, when suggestions appear above the typing area, use up/down arrow keys to select, then hit `Tab` to confirm.
+
+## Screen translation
+
+Translates on-screen content using Google Cloud Vision and Translation APIs.
+
+**Keybind:** `Super + Shift + T`
+
+### Prerequisites
+
+- A Google Account
+- A credit/debit card on file (Google requirement to prevent fraud — you won't be charged unless you activate a full account)
+
+### Setup
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/) and create or select a project (can be the same project as your Gemini API key)
+2. Enable these APIs:
+   - [Cloud Vision API](https://console.cloud.google.com/marketplace/product/google/vision.googleapis.com)
+   - [Cloud Translation API](https://console.cloud.google.com/marketplace/product/google/translate.googleapis.com)
+3. From the left menu, go to **Billing** → Link a billing account
+4. Go to **IAM & Admin** → **Service Accounts** → Create service account:
+   - Step 1: Enter any name
+   - Step 2: Add roles: `Service Usage Consumer` and `Cloud Translation API User` → Continue
+   - Step 3: Press Done
+5. Click the 3-dots menu on your service account → **Manage keys**
+6. Click **Add key** → **Create new key** → Select JSON → **Create** (downloads a JSON file)
+7. Open the screen translator with `Super + Shift + T`:
+   - Click the **Key input** button at the bottom
+   - Paste the JSON file contents → press Enter
+8. Delete the downloaded JSON file (it's now stored securely in the keyring)
+
+:::note
+To view the stored key later, inspect the `illogical-impulse Safe Storage` keyring entry.
+:::
+
+## Workspace groups
+
+If 10 workspaces aren't enough, you can use workspace groups. Over-scroll the workspace widget on the bar to switch to a new group (group 1 = workspaces 1-10, group 2 = 11-20, etc.).
+
+### Navigation
+
+Keybinds and shell widgets work seamlessly within the active group:
+
+| Keybind | Action |
+|---------|--------|
+| `Super + 2` | Goes to workspace 12 if you're in group 2 (workspaces 11-20) |
+| `Super + Alt + 3` | Moves window to workspace 23 if you're in group 3 |
+
+To jump between groups, add these keybinds to `~/.config/hypr/custom/keybinds.lua`:
+
+```lua
+hl.bind("SUPER + ALT", "Z", hl.dsp.focus({ workspace = "r-10" }))
+hl.bind("SUPER + ALT", "X", hl.dsp.focus({ workspace = "r+10" }))
+```
+
+:::tip
+Use `~/.config/hypr/hyprland/scripts/workspace_action.sh` instead of `hyprctl dispatch` for workspace navigation — it automatically detects the current group and dispatches to the correct workspace.
+:::
+
+### Multi-monitor setup
+
+To bind workspace groups to specific monitors:
+
+```lua
+-- In ~/.config/hypr/custom/general.lua
+
+-- Bind workspaces 1-10 (group 1) to primary monitor
+for i = 1, 10 do
+  hl.workspace_rule({ workspace = tostring(i), monitor = "eDP-1", default = true })
+end
+
+-- Bind workspaces 11-20 (group 2) to secondary monitor
+for i = 11, 20 do
+  hl.workspace_rule({ workspace = tostring(i), monitor = "HDMI-A-1", default = true })
+end
+```
+
+Get your monitor names with `hyprctl monitors | grep Monitor`.
+
+On startup, move the secondary monitor's starting workspace into the second group: `Super + 0`, then `Ctrl + Super + Right`.
+
+:::note
+Workspace groups are not natively supported by Hyprland — this config achieves it by tinkering with Hyprland dispatchers and the shell config.
+:::
+
 ## Clipboard & emoji
 
 - `Super + V` opens clipboard history (powered by `cliphist`)

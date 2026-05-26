@@ -25,12 +25,60 @@ This ensures the documentation stays accurate and other agents (or humans) can u
 | Bug fixes | `guide/05-troubleshooting.md` (if it's a common issue) |
 | New features | `guide/01-overview.md` + relevant usage/config pages |
 
-## Weekly Summaries
+## Weekly summaries & changelog lifecycle
 
-Every Sunday, a workflow runs to generate a weekly summary of all commits. The summary is placed in:
-`docs/src/content/docs/ai-agents/weekly-summaries/<month>-week-<num>.md`
+The changelog system follows this lifecycle:
 
-You should review the weekly summary to ensure that the AI Agent Notes in the corresponding changelog entries are filled in.
+1. **Push to `main`** → `docs-changelog.yml` creates a per-commit entry in `ai-agents/changelog/YYYY-MM-DD-<sha>.md`
+2. **AI agent works** → fills in the `## AI Agent Notes` section of the relevant changelog entry
+3. **Every Sunday** → `weekly-summary.yml` runs:
+   - Generates a consolidated weekly summary at `ai-agents/weekly-summaries/<month>-week-<n>.md`
+   - **Deletes all individual changelog entries** for that week
+4. The weekly summary becomes the **permanent record** — individual changelogs no longer exist
+
+### What this means for AI agents
+
+- **During the week:** Find your commit's changelog entry in `ai-agents/changelog/` and fill in the AI Agent Notes
+- **If the entry is gone** (already rolled into a weekly summary): find the matching weekly summary in `ai-agents/weekly-summaries/` and add your notes there instead
+- **Always check both locations** — if you can't find a changelog entry, the weekly rollup has already happened
+
+### Weekly summary location
+
+```
+docs/src/content/docs/ai-agents/weekly-summaries/<month>-week-<num>.md
+```
+
+Example: `may-week-4.md` for the 4th week of May.
+
+## Upstream documentation sync
+
+**Before completing any work session**, check the upstream wiki at [ii.clsty.link](https://ii.clsty.link/en/) for new or changed content that should be reflected in our docs.
+
+The upstream project (end-4/dots-hyprland) maintains its own wiki at:
+- **Live site:** https://ii.clsty.link/en/
+- **Source repo:** https://github.com/end-4/dots-hyprland-wiki
+
+### Page mapping
+
+| Upstream Page | Our Equivalent | What to sync |
+|---------------|---------------|-------------|
+| [ii-qs/01setup](https://ii.clsty.link/en/ii-qs/01setup/) | `guide/02-install.md` | Installation methods, distro support, post-install steps |
+| [ii-qs/02usage](https://ii.clsty.link/en/ii-qs/02usage/) | `guide/03-usage.md` | Keybinds, sidebar features, workspace groups, screen tools |
+| [ii-qs/03config](https://ii.clsty.link/en/ii-qs/03config/) | `guide/04-configuration.md` | Hyprland/Quickshell config, misc settings (WARP, scaling, fonts, lock screen) |
+| [ii-qs/04troubleshooting](https://ii.clsty.link/en/ii-qs/04troubleshooting/) | `guide/05-troubleshooting.md` | Common issues and debug steps |
+| [general/showcase](https://ii.clsty.link/en/general/showcase/) | *(no equivalent — link only)* | N/A |
+
+### Sync workflow
+
+1. Open the upstream page and its corresponding fork page side by side
+2. Look for **new sections, features, or updated instructions** in upstream that we don't cover
+3. Port relevant content into our page, **adapting it for the fork context** (e.g. referencing `custom/keybinds.lua` instead of `custom/keybinds.conf`)
+4. Add fork-specific notes where our behavior differs from upstream
+5. Note the sync in your changelog's AI Agent Notes (e.g. "Synced workspace groups documentation from upstream wiki")
+
+:::tip
+Our docs should be a **superset** of upstream — covering everything upstream covers, plus fork-specific additions. If upstream adds a feature we don't document, add it.
+:::
 
 ## Changelog entries
 

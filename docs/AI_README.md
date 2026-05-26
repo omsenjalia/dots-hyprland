@@ -99,6 +99,15 @@ See `docs/src/content/docs/ai-agents/03-update-docs.md` for complete details:
 5. **Keep changes minimal and focused** - one topic per PR when possible
 6. **Update documentation immediately** after code changes, not later
 
+## 🔄 Upstream Sync
+
+This fork's documentation should stay in sync with the upstream wiki:
+
+- **Upstream wiki:** https://ii.clsty.link/en/
+- **Upstream wiki repo:** https://github.com/end-4/dots-hyprland-wiki
+
+Before completing work, compare upstream pages against our guide pages and port any missing content. See `docs/src/content/docs/ai-agents/03-update-docs.md` for the full page mapping and sync workflow.
+
 ## 🛠️ Tools & Commands
 
 ### Documentation Development:
