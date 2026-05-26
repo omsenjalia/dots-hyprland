@@ -24,44 +24,47 @@ jobs:
       - name: Calculate week range
         id: week-calc
         run: |
-          # Get current date
-          TODAY=$(date -u +%Y-%m-%d)
-          # Get start of week (Sunday)
-          START_OF_WEEK=$(date -u -d "last sunday" +%Y-%m-%d)
-          # Get end of week (Saturday)
-          END_OF_WEEK=$(date -u -d "next saturday" +%Y-%m-%d)
+          # Calculate the most recent completed Sun-Sat week.
+          # Works on any day (manual dispatch) or on Sunday (cron).
+          # "last saturday" in GNU date always gives the most recent past Saturday,
+          # even when run on Saturday itself (gives 7 days ago).
+          END_OF_WEEK=$(date -u -d "last saturday" +%Y-%m-%d)
+          START_OF_WEEK=$(date -u -d "$END_OF_WEEK - 6 days" +%Y-%m-%d)
+          # git log --until is exclusive, so use the day after Saturday
+          UNTIL_DATE=$(date -u -d "$END_OF_WEEK + 1 day" +%Y-%m-%d)
+          
           # Get month and week number for filename
           MONTH=$(date -u -d "$START_OF_WEEK" +%B | tr '[:upper:]' '[:lower:]')
-          WEEK_NUM=$(date -u -d "$START_OF_WEEK" +%U)
-          # Adjust week number to be 1-indexed within the month
           DAY_OF_MONTH=$(date -u -d "$START_OF_WEEK" +%d)
           WEEK_IN_MONTH=$(( (DAY_OF_MONTH - 1) / 7 + 1 ))
           
           echo "start_date=$START_OF_WEEK" >> $GITHUB_OUTPUT
           echo "end_date=$END_OF_WEEK" >> $GITHUB_OUTPUT
+          echo "until_date=$UNTIL_DATE" >> $GITHUB_OUTPUT
           echo "month=$MONTH" >> $GITHUB_OUTPUT
           echo "week_in_month=$WEEK_IN_MONTH" >> $GITHUB_OUTPUT
           echo "filename=${MONTH}-week-${WEEK_IN_MONTH}.md" >> $GITHUB_OUTPUT
+          
+          echo "Week range: $START_OF_WEEK to $END_OF_WEEK (git until: $UNTIL_DATE)"
           
       - name: Get weekly commits
         id: weekly-commits
         run: |
           START_OF_WEEK=${{ steps.week-calc.outputs.start_date }}
-          END_OF_WEEK=${{ steps.week-calc.outputs.end_date }}
+          UNTIL_DATE=${{ steps.week-calc.outputs.until_date }}
           
-          # Get commits since start of week
-          COMMITS=$(git log --since="$START_OF_WEEK" --until="$END_OF_WEEK" --pretty=format:"%h %s <%an> %ad" --date=short)
+          # --since is inclusive, --until is exclusive
+          COMMITS=$(git log --since="$START_OF_WEEK" --until="$UNTIL_DATE" --pretty=format:"%h %s <%an> %ad" --date=short)
           
           if [ -z "$COMMITS" ]; then
-            echo "No credits found for week $START_OF_WEEK to $END_OF_WEEK"
+            echo "No commits found for week $START_OF_WEEK to ${{ steps.week-calc.outputs.end_date }}"
             echo "has_commits=false" >> $GITHUB_OUTPUT
             exit 0
           fi
           
           echo "has_commits=true" >> $GITHUB_OUTPUT
-          echo "commits<<EOF" >> $GITHUB_OUTPUT
+          echo "Found commits:"
           echo "$COMMITS"
-          echo "EOF"
           
       - name: Generate weekly summary
         if: steps.weekly-commits.outputs.has_commits == 'true'
@@ -90,8 +93,8 @@ jobs:
             echo "## Commits"
             echo ""
             
-            # Process each commit
-            git log --since="${{ steps.week-calc.outputs.start_date }}" --until="${{ steps.week-calc.outputs.end_date }}" --pretty=format:"%h %s <%an> %ad" --date=short | while read commit; do
+            # Process each commit (--until is exclusive, so use today to include Saturday)
+            git log --since="${{ steps.week-calc.outputs.start_date }}" --until="${{ steps.week-calc.outputs.until_date }}" --pretty=format:"%h %s <%an> %ad" --date=short | while read commit; do
               if [ -n "$commit" ]; then
                 # Extract commit hash
                 commit_hash=$(echo "$commit" | awk '{print $1}')
