@@ -1,9 +1,14 @@
 ---
-title: "remove forg" 
-date: 2026-05-26
-commit: 642819708ebc5dd6feca7ddb1bea29997e04752f
-author: om
+title: "Weekly Summary: may week 4"
+date: 31/05/26
+week_start: 24/05/26
+week_end: 30/05/26
 ---
+
+### remove forg 
+
+**Date:** 26/05/26 | **Author:** om | **Commit:** `6428197`
+
 
 ## Changed Files
 
@@ -20,3 +25,6 @@ remove forg
 <!-- AI agents: fill this in after working on related code.
      Explain WHY changes were made, any gotchas, and what
      other agents should know about this change. -->
+
+---
+
