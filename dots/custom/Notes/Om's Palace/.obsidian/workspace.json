@@ -55,7 +55,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Lecture 11.md",
+                "file": "C Programming/Lecture 11.md",
                 "mode": "source",
                 "source": false
               },
@@ -226,10 +226,10 @@
       "bases:Create new base": false
     }
   },
-  "active": "4003455f830d6f5d",
+  "active": "a307c701a731a9f9",
   "lastOpenFiles": [
     "C Programming/Lecture 10.md",
-    "Lecture 11.md",
+    "C Programming/Lecture 11.md",
     "C Programming/Lecture 9.md",
     "C Programming/Lecture 8.md",
     "C Programming/Lecture 7.md",
