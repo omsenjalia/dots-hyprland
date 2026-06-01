@@ -1,0 +1,8 @@
+{
+  "types": {
+    "aliases": "aliases",
+    "cssclasses": "multitext",
+    "tags": "tags",
+    "This lecture builds the foundation for understanding how computers store and process information at the lowest level. It begins with the three number systems fundamental to computing — binary, octal, and hexadecimal — and then moves up to examine how programming languages are classified by their proximity to hardware": "multitext"
+  }
+}

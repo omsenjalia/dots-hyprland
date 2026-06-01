@@ -1,5 +1,7 @@
-
 ---
+---
+---
+
 ## tags: [c-programming, lecture] lecture: 1 topic: Introduction to C — Language Basics, History, and Setup prerequisites: None
 
 ## Agenda
@@ -33,7 +35,7 @@ graph TD
 
 ## Introduction & History of C
 
-[[C — Lecture 1]] was developed by [[Dennis Ritchie — Lecture 1]] in 1972 at [[Bell Laboratories — Lecture 1]], USA. It was built primarily to develop the [[UNIX — Lecture 1]] operating system, and was designed to solve the limitations of the languages that preceded it — [[BCPL — Lecture 1]] (Basic Combined Programming Language) and [[B language — Lecture 1]], which was itself derived from BCPL.
+[[#^c-lang|C]] was developed by [[#^dennis-ritchie|Dennis Ritchie]] in 1972 at [[#^bell-labs|Bell Laboratories]], USA. It was built primarily to develop the [[#^unix|UNIX]] operating system, and was designed to solve the limitations of the languages that preceded it — [[#^bcpl|BCPL]] (Basic Combined Programming Language) and [[#^b-lang|B]], which was itself derived from BCPL.
 
 > [!quote] Why C was created BCPL and B lacked the power and expressiveness needed to build a full operating system. C was Dennis Ritchie's direct answer to those limitations — purpose-built for systems programming.
 
@@ -45,7 +47,7 @@ graph TD
   C --> ANSI["ANSI C<br/>Standardized by American<br/>National Standards Institute"]
 ```
 
-After Ritchie's original release, the [[ANSI — Lecture 1]] (American National Standards Institute) team worked on the language and published the standardized **[[ANSI C — Lecture 1]]** version, which became the universal reference for all C compilers.
+After Ritchie's original release, the [[#^ansi|ANSI]] (American National Standards Institute) team worked on the language and published the standardized **[[#^ansi-c|ANSI C]]** version, which became the universal reference for all C compilers.
 
 > [!success] Why C is still relevant today C is used for building operating systems, application packages, and customized software. Its longevity comes from a combination of raw performance and close-to-hardware control that higher-level languages simply cannot match.
 
@@ -69,11 +71,11 @@ C is actively used across a range of professional roles:
 
 > [!warning] Live Demo — Check Video This section was a live demonstration and was not captured in the slides. Refer back to the lecture video for the installation walkthrough.
 
-To write and run C programs you need two things: a **[[text editor — Lecture 1]]** or **[[IDE — Lecture 1]]** to write code, and a **[[compiler — Lecture 1]]** to translate that code into machine-executable instructions. The most common compiler used for learning C is [[GCC — Lecture 1]] (GNU Compiler Collection).
+To write and run C programs you need two things: a **[[#^text-editor|text editor]]** or **[[#^ide|IDE]]** to write code, and a **[[#^compiler|compiler]]** to translate that code into machine-executable instructions. The most common compiler used for learning C is [[#^gcc|GCC]] (GNU Compiler Collection).
 
 ```mermaid
 graph TD
-  A["Write Code<br/>Text Editor / IDE"] --> B["GCC Compiler<br/>Translates C to machine code"]
+  A["Write Code<br/>Text Editor or IDE"] --> B["GCC Compiler<br/>Translates C to machine code"]
   B --> C{"Errors?"}
   C -- Yes --> A
   C -- No --> D["Executable File<br/>.exe on Windows<br/>a.out on Linux"]
@@ -127,31 +129,30 @@ graph TD
 
 |Term|Definition|
 |---|---|
-|[[C — Lecture 1]]|A general-purpose, compiled programming language developed in 1972 by Dennis Ritchie|
-|[[Dennis Ritchie — Lecture 1]]|Creator of the C language, worked at Bell Laboratories, USA|
-|[[Bell Laboratories — Lecture 1]]|US research facility where C and UNIX were developed|
-|[[UNIX — Lecture 1]]|Operating system that C was originally built to develop|
-|[[BCPL — Lecture 1]]|Basic Combined Programming Language — earliest ancestor of C|
-|[[B language — Lecture 1]]|Predecessor to C, derived from BCPL|
-|[[ANSI — Lecture 1]]|American National Standards Institute — standardized the C language|
-|[[ANSI C — Lecture 1]]|The standardized, cross-platform version of C released after Ritchie's original|
-|[[compiler — Lecture 1]]|A program that translates C source code into machine-executable instructions|
-|[[GCC — Lecture 1]]|GNU Compiler Collection — the most widely used C compiler for learning and development|
-|[[IDE — Lecture 1]]|Integrated Development Environment — a text editor with built-in tools for writing and running code|
+|C|A general-purpose, compiled programming language developed in 1972 by Dennis Ritchie|
+|Dennis Ritchie|Creator of the C language, worked at Bell Laboratories, USA|
+|Bell Laboratories|US research facility where C and UNIX were developed|
+|UNIX|Operating system that C was originally built to develop|
+|BCPL|Basic Combined Programming Language — earliest ancestor of C|
+|B|Predecessor to C, derived from BCPL|
+|ANSI|American National Standards Institute — body that standardized the C language|
+|ANSI C|The standardized, cross-platform version of C released after Ritchie's original|
+|compiler|A program that translates C source code into machine-executable instructions|
+|GCC|GNU Compiler Collection — the most widely used C compiler for learning and development|
+|IDE|Integrated Development Environment — editor with built-in tools for writing and running code|
+|text editor|A program used to write code, such as VS Code or Notepad++|
 
 ---
 
-## Try It Yourself
-
-**Exercise 1 — Change the Message** Modify the Hello World program to print your own name instead of "Hello, World!". Compile and run it.
-
-**Exercise 2 — Multiple Lines** Write a program that prints three separate lines of text using three `printf` statements. Observe how `\n` controls the line breaks.
-
-**Exercise 3 — C History in Code** Write a program that prints the C language lineage as output, like this:
-
-```
-BCPL --> B --> C (1972) --> ANSI C
-```
+> [!example]- Try It Yourself **Exercise 1 — Change the Message** Modify the Hello World program to print your own name instead of "Hello, World!". Compile and run it.
+> 
+> **Exercise 2 — Multiple Lines** Write a program that prints three separate lines of text using three `printf` statements. Observe how `\n` controls the line breaks.
+> 
+> **Exercise 3 — C History in Code** Write a program that prints the C language lineage as output:
+> 
+> ```
+> BCPL --> B --> C (1972) --> ANSI C
+> ```
 
 ---
 

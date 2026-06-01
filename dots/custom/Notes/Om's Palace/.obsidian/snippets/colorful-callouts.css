@@ -1,0 +1,78 @@
+/* ============================================
+   Colorful Callouts for Obsidian Minimal Theme
+   Drop this file in: .obsidian/snippets/
+   Then enable it in Settings > Appearance > CSS Snippets
+   ============================================ */
+
+.callout[data-callout="tip"],
+.callout[data-callout="hint"],
+.callout[data-callout="important"] {
+  --callout-color: 28, 207, 110;
+}
+
+.callout[data-callout="warning"],
+.callout[data-callout="caution"],
+.callout[data-callout="attention"] {
+  --callout-color: 255, 162, 0;
+}
+
+.callout[data-callout="info"],
+.callout[data-callout="todo"] {
+  --callout-color: 4, 164, 230;
+}
+
+.callout[data-callout="success"],
+.callout[data-callout="check"],
+.callout[data-callout="done"] {
+  --callout-color: 40, 200, 120;
+}
+
+.callout[data-callout="question"],
+.callout[data-callout="help"],
+.callout[data-callout="faq"] {
+  --callout-color: 168, 100, 255;
+}
+
+.callout[data-callout="failure"],
+.callout[data-callout="fail"],
+.callout[data-callout="missing"] {
+  --callout-color: 255, 96, 96;
+}
+
+.callout[data-callout="danger"],
+.callout[data-callout="error"] {
+  --callout-color: 255, 50, 50;
+}
+
+.callout[data-callout="bug"] {
+  --callout-color: 255, 80, 120;
+}
+
+.callout[data-callout="example"] {
+  --callout-color: 120, 80, 255;
+}
+
+.callout[data-callout="quote"],
+.callout[data-callout="cite"] {
+  --callout-color: 158, 158, 158;
+}
+
+.callout[data-callout="note"],
+.callout[data-callout="abstract"],
+.callout[data-callout="summary"] {
+  --callout-color: 68, 138, 255;
+}
+
+/* Apply color to background, border, and title */
+.callout {
+  background-color: rgba(var(--callout-color), 0.08);
+  border-left-color: rgb(var(--callout-color));
+}
+
+.callout-title {
+  color: rgb(var(--callout-color));
+}
+
+.callout-icon {
+  color: rgb(var(--callout-color));
+}
