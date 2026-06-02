@@ -17,7 +17,7 @@
 
 > [!warning] Live Demo — Check Video This section was a live demonstration and was not captured in the slides. Refer back to the lecture video for the walkthrough.
 
-A [[#^nested-if-else|nested if-else]] structure places one `if-else` decision inside another, enabling multi-level branching. The inner check only runs after the outer condition has already been settled, allowing a program to reach several distinct outcomes from a single entry point.
+A [[#^nested-if-else|nested if-else]] structure places one [[Lecture 9#^if-else-statement|if-else]] decision inside another, enabling multi-level branching. The inner check only runs after the outer [[Lecture 9#^condition|condition]] has already been settled, allowing a program to reach several distinct outcomes from a single entry point.
 
 The general structure looks like this:
 
@@ -33,40 +33,55 @@ if (outerCondition) {
 }
 ```
 
+> [!tip] The Structure of Nested If-Else
+> - The outer `if` tests a broad condition first — only if it passes does the inner `if` get evaluated
+> - The outer `else` catches the case where the broad condition failed — the inner checks are never reached
+> - This pattern creates a decision tree: each level narrows the possibilities further
+
 > [!info] When to Use Nesting Nest conditions when a decision has tiers — first verify a broad requirement, then refine within it. Validating that input falls in range before classifying it is a classic pattern.
 
 The program below uses nested if-else to classify a student's percentage into a letter grade:
 
 ```c
-#include <stdio.h>       // provides printf and scanf
+#include <stdio.h>
 
-int main() {             // entry point — all C programs start here
-    int percent;         // stores the student's percentage
+int main() {
+    int percent;
 
-    printf("Enter percentage: ");    // prompt the user
-    scanf("%d", &percent);           // read an integer from the keyboard
+    printf("Enter percentage: ");
+    scanf("%d", &percent);
 
-    if (percent >= 0 && percent <= 100) {   // outer: validate the input range
-        if (percent >= 90) {                // nested tier 1: check for A
+    if (percent >= 0 && percent <= 100) {
+        if (percent >= 90) {
             printf("Grade: A\n");
-        } else if (percent >= 75) {         // nested tier 2: check for B
+        } else if (percent >= 75) {
             printf("Grade: B\n");
-        } else if (percent >= 60) {         // nested tier 3: check for C
+        } else if (percent >= 60) {
             printf("Grade: C\n");
-        } else {                            // below 60 — failing mark
+        } else {
             printf("Grade: F\n");
         }
     } else {
-        printf("Invalid percentage.\n");    // outer else: bad input
+        printf("Invalid percentage.\n");
     }
 
-    return 0;            // return 0 signals success to the OS
+    return 0;
 }
 ```
 
+> [!tip] Validating Input Before Processing
+> - The outer `if (percent >= 0 && percent <= 100)` validates the input range before any classification
+> - Only valid percentages (0–100) reach the inner [[Lecture 9#^if-else-ladder|if-else if-else ladder]]
+> - Invalid inputs like -5 or 150 are caught by the outer `else` and produce an error message
+
+> [!tip] Multi-Tier Classification
+> - The inner ladder checks grades from highest to lowest: 90+ → A, 75+ → B, 60+ → C, else → F
+> - Evaluation stops at the first true condition — a score of 85 matches `>= 75` and skips all remaining checks
+> - The final inner `else` catches everything below 60 as a failing mark
+
 |Line|Code|Explanation|
 |---|---|---|
-|1|`#include <stdio.h>`|Includes the standard I/O library for [[printf]] and [[scanf]]|
+|1|`#include <stdio.h>`|Includes the standard I/O library for [[Lecture 2#^printf|printf]] and [[Lecture 2#^scanf|scanf]]|
 |3|`int main()`|Entry point; every C program begins execution here|
 |4|`int percent;`|Declares the integer variable that will hold the user's input|
 |6|`printf("Enter percentage: ");`|Displays the prompt|
@@ -98,7 +113,7 @@ graph TD
 
 ## Understanding Loop
 
-A [[#^loop|loop]] is a control structure that causes a block of code to execute repeatedly for as long as a specified [[#^condition|condition]] remains true. Rather than writing the same statement multiple times, you express the repeated action once inside the loop and let the computer handle the repetitions.
+A [[#^loop|loop]] is a control structure that causes a block of code to execute repeatedly for as long as a specified condition remains true. Rather than writing the same statement multiple times, you express the repeated action once inside the loop and let the computer handle the repetitions.
 
 ### What Is a Loop?
 
@@ -119,7 +134,7 @@ graph TD
 
 ### Why Is a Loop Needed?
 
-Printing the numbers 1 through 100 with individual `printf` calls would take one hundred lines of code. A loop does it in four. Any time you face one of the following situations, a loop is the right tool:
+Printing the numbers 1 through 100 with individual [[Lecture 2#^printf|printf]] calls would take one hundred lines of code. A loop does it in four. Any time you face one of the following situations, a loop is the right tool:
 
 - Repeating an action a known number of times (printing a multiplication table, running a countdown timer).
 - Processing every element in a sequence (reading ten exam scores, averaging a list of temperatures).
@@ -151,19 +166,29 @@ while (condition) {
 The program below uses a while loop to print the integers from 1 to 5:
 
 ```c
-#include <stdio.h>      // needed for printf
+#include <stdio.h>
 
-int main() {            // program entry point
-    int i = 1;          // initialize the counter before the loop begins
+int main() {
+    int i = 1;
 
-    while (i <= 5) {    // condition checked first; stops when i exceeds 5
-        printf("%d\n", i);  // print the current value of i
-        i++;                // increment i; moves toward the exit condition
+    while (i <= 5) {
+        printf("%d\n", i);
+        i++;
     }
 
-    return 0;           // signal success to the OS
+    return 0;
 }
 ```
+
+> [!tip] Initialising the Counter
+> - `int i = 1` sets the starting value before the loop begins — this is the **initialisation** step
+> - The counter must be declared and assigned before the `while` line; otherwise the condition has nothing to test
+> - Starting at 1 means the output will be 1, 2, 3, 4, 5
+
+> [!tip] Condition and Loop Body
+> - `while (i <= 5)` checks the condition before each iteration — the body runs only when `i` is 5 or less
+> - `printf("%d\n", i)` prints the current value; `i++` increments it by 1 — this is the **update** step
+> - When `i` becomes 6, the condition is false and the loop exits
 
 |Line|Code|Explanation|
 |---|---|---|
@@ -210,29 +235,44 @@ The do-while loop executes its body first and checks the condition **afterward**
 ```c
 do {
     // body — always executes at least once
-} while (condition);    // semicolon is mandatory here
+} while (condition);
 ```
+
+> [!tip] Do-While Syntax
+> - The semicolon after `} while (condition)` is mandatory — it is part of the do-while syntax
+> - Omitting it is a compile error that trips up beginners because `if` and `while` blocks do not end with semicolons
+> - The body always runs at least once before the condition is checked
 
 > [!danger] Required Semicolon The semicolon after `} while (condition)` is not optional — it is part of the do-while syntax. Omitting it is a compile error. This trips up beginners because `if` and `while` blocks do not end with semicolons, but do-while does.
 
 The program below uses a do-while loop to keep prompting the user until a positive number is entered:
 
 ```c
-#include <stdio.h>      // needed for printf and scanf
+#include <stdio.h>
 
-int main() {            // program entry point
-    int number;         // will hold the user's input
+int main() {
+    int number;
 
     do {
-        printf("Enter a positive number: ");  // displayed at least once unconditionally
-        scanf("%d", &number);                 // read an integer from the keyboard
-    } while (number <= 0);                    // loop back if input is zero or negative
+        printf("Enter a positive number: ");
+        scanf("%d", &number);
+    } while (number <= 0);
 
-    printf("You entered: %d\n", number);      // print the accepted value
+    printf("You entered: %d\n", number);
 
-    return 0;           // signal success to the OS
+    return 0;
 }
 ```
+
+> [!tip] Guaranteed First Execution
+> - The `do` block runs unconditionally on the first pass — the prompt is always shown at least once
+> - `scanf` reads the user's input, then the `while (number <= 0)` condition is checked afterward
+> - If the input is zero or negative, the loop repeats; once a positive number is entered, the loop exits
+
+> [!tip] Perfect for Input Validation
+> - Input validation is the canonical use case for do-while — you always need to prompt at least once
+> - The loop keeps running until the user provides input that meets the required criteria
+> - This pattern avoids the awkward "prime the read" workaround needed with a regular while loop
 
 |Line|Code|Explanation|
 |---|---|---|
@@ -271,11 +311,11 @@ graph TD
 > int x = 10;
 > 
 > while (x < 5) {
->     printf("while: %d\n", x);    // never executes — condition is false from start
+>     printf("while: %d\n", x);
 > }
 > 
 > do {
->     printf("do-while: %d\n", x); // executes once before condition is checked
+>     printf("do-while: %d\n", x);
 > } while (x < 5);
 > ```
 > 
@@ -287,17 +327,17 @@ graph TD
 
 |Term|Definition|
 |---|---|
-|Nested If-Else|An if or else block that contains another if-else structure inside it, enabling multi-level branching decisions|
-|Loop|A control structure that executes a block of code repeatedly as long as a specified condition remains true|
-|Condition|A boolean expression evaluated to true or false that controls whether a loop continues or a branch executes|
-|Iteration|One complete execution of a loop body; each pass through the loop is a single iteration|
-|Loop Body|The set of statements enclosed within a loop that executes on every iteration|
-|Counter Variable|A variable used to track how many iterations have occurred; initialized before the loop and updated inside the body|
-|While Loop|An entry-controlled loop that evaluates its condition before the body runs; the body may be skipped entirely if the condition is initially false|
-|Do-While Loop|An exit-controlled loop that runs its body first and then evaluates the condition; the body always executes at least once|
-|Infinite Loop|A loop whose condition never becomes false, causing the program to execute indefinitely|
-|Entry-Controlled Loop|A loop that tests its condition before executing the body; the while loop is the primary example in C|
-|Exit-Controlled Loop|A loop that tests its condition after executing the body; the do-while loop is the primary example in C|
+| Nested If-Else | An if or else block that contains another if-else structure inside it, enabling multi-level branching decisions | ^nested-if-else
+| Loop | A control structure that executes a block of code repeatedly as long as a specified condition remains true | ^loop
+| Condition | A boolean expression evaluated to true or false that controls whether a loop continues or a branch executes |
+| Iteration | One complete execution of a loop body; each pass through the loop is a single iteration | ^iteration
+| Loop Body | The set of statements enclosed within a loop that executes on every iteration | ^loop-body
+| Counter Variable | A variable used to track how many iterations have occurred; initialized before the loop and updated inside the body | ^counter-variable
+| While Loop | An entry-controlled loop that evaluates its condition before the body runs; the body may be skipped entirely if the condition is initially false | ^while-loop
+| Do-While Loop | An exit-controlled loop that runs its body first and then evaluates the condition; the body always executes at least once | ^do-while-loop
+| Infinite Loop | A loop whose condition never becomes false, causing the program to execute indefinitely | ^infinite-loop
+| Entry-Controlled Loop | A loop that tests its condition before executing the body; the while loop is the primary example in C | ^entry-controlled
+| Exit-Controlled Loop | A loop that tests its condition after executing the body; the do-while loop is the primary example in C | ^exit-controlled
 
 > [!example]- Try It Yourself **Exercise 1 — Nested Classification** Write a C program that reads an integer and uses nested if-else to print whether it is "Large positive" (greater than 100), "Small positive" (1 to 100), "Zero", "Small negative" (-100 to -1), or "Large negative" (less than -100).
 > 

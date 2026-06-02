@@ -15,7 +15,7 @@ Every program written so far has worked with values baked directly into the sour
 
 Consider a voting eligibility checker: the program cannot determine whether voting is permitted without first knowing the user's age. The program must ask, wait for a response, receive the typed value, and only then proceed. This pause-and-wait cycle is called an **interrupt in processing** — normal sequential execution halts until the user supplies the required data and presses Enter.
 
-> [!info] What Happens During the Interrupt When the program reaches an input instruction, the CPU yields control to the operating system, which manages the waiting state efficiently. Other system processes continue running. Only after the user presses Enter does the OS resume the program with the new value available in memory.
+> [!info] What Happens During the Interrupt When the program reaches an input instruction, the [[Lecture 2#^cpu|CPU]] yields control to the operating system, which manages the waiting state efficiently. Other system processes continue running. Only after the user presses Enter does the OS resume the program with the new value available in memory.
 
 ```mermaid
 graph TD
@@ -28,7 +28,7 @@ graph TD
 
 ### The `scanf` Function
 
-C provides the [[#^scanf|scanf]] function (declared in `<stdio.h>`) to read formatted data from the keyboard. Its format string uses the same [[#^format-specifier|format specifiers]] as [[Lecture 1#^printf|printf]] — for example `%d` for integers — but there is one critical difference: instead of passing a variable's _value_, you must pass its _address_ using the [[#^address-of|address-of operator]] `&`.
+C provides the [[Lecture 2#^scanf|scanf]] function (declared in `<stdio.h>`) to read formatted data from the keyboard. Its format string uses the same [[Lecture 5#^format-specifier|format specifiers]] as [[Lecture 2#^printf|printf]] — for example `%d` for integers — but there is one critical difference: instead of passing a variable's _value_, you must pass its _address_ using the [[#^address-of|address-of operator]] `&`.
 
 When you write `&age`, you are handing scanf the exact memory location where the incoming value should be written. Without `&`, scanf would only receive a copy and the original variable would remain unchanged.
 
@@ -50,18 +50,33 @@ void main()
 Here is the corrected, fully annotated version:
 
 ```c
-#include <stdio.h>       // provides printf and scanf from the standard I/O library
+#include <stdio.h>
 
 int main() {
-    int age;                             // declare an integer variable; holds garbage until assigned
+    int age;
 
-    printf("Enter your age: ");          // prompt — no \n keeps the cursor on the same line
-    scanf("%d", &age);                   // read one integer; & passes the address of age to scanf
-    printf("Your age is = %d\n", age);  // print the value now stored at age's memory location
+    printf("Enter your age: ");
+    scanf("%d", &age);
+    printf("Your age is = %d\n", age);
 
-    return 0;                            // signal successful completion to the OS
+    return 0;
 }
 ```
+
+> [!tip] Including Standard Libraries
+> - `#include <stdio.h>` imports the Standard Input/Output header so `printf` and `scanf` are available
+> - This directive belongs in the [[Lecture 2#^linking-section|Linking Section]] — the very first functional line after documentation comments
+> - Without it, the [[Lecture 1#^compiler|compiler]] will not recognise any I/O function calls
+
+> [!tip] Getting User Input
+> - `printf("Enter your age: ")` displays a prompt — no `\n` keeps the cursor on the same line as the user's typing
+> - `scanf("%d", &age)` reads one integer from the keyboard and stores it at the memory address of `age`
+> - The `&` (address-of [[#^operator|operator]]) is required because `scanf` needs to know where in memory to write the value
+
+> [!tip] Displaying the Result
+> - `printf("Your age is = %d\n", age)` prints the value that `scanf` placed into `age`
+> - `%d` tells `printf` to interpret the bytes at `age`'s address as a signed integer
+> - `return 0;` signals to the operating system that the program finished successfully
 
 |Line|Code|Explanation|
 |---|---|---|
@@ -80,23 +95,38 @@ int main() {
 The following sample reinforces the pattern by reading two separate values and computing their sum:
 
 ```c
-#include <stdio.h>       // standard I/O for printf and scanf
+#include <stdio.h>
 
 int main() {
-    int num1, num2, sum;          // three integer variables: two inputs, one result
+    int num1, num2, sum;
 
     printf("Enter first number: ");
-    scanf("%d", &num1);           // read the first integer into num1
+    scanf("%d", &num1);
 
     printf("Enter second number: ");
-    scanf("%d", &num2);           // read the second integer into num2
+    scanf("%d", &num2);
 
-    sum = num1 + num2;            // add both user-supplied values
-    printf("Sum = %d\n", sum);   // display the result
+    sum = num1 + num2;
+    printf("Sum = %d\n", sum);
 
     return 0;
 }
 ```
+
+> [!tip] Declaring Variables
+> - `int num1, num2, sum;` declares three integer variables in a single statement
+> - `num1` and `num2` will hold the user's input values; `sum` will hold the computed result
+> - All three contain garbage values until they are assigned meaningful data
+
+> [!tip] Getting Two Inputs Sequentially
+> - Each input is preceded by its own `printf` prompt so the user knows what to type
+> - Each `scanf` call reads one integer and stores it at the corresponding variable's address
+> - The program pauses at each `scanf` and resumes only after the user presses Enter
+
+> [!tip] Computing and Displaying the Sum
+> - `sum = num1 + num2` adds both user-supplied values together using the `+` [[#^arithmetic-operators|arithmetic operator]]
+> - `printf("Sum = %d\n", sum)` displays the computed result
+> - The pattern of prompt → input → compute → display is fundamental to interactive C programs
 
 |Line|Code|Explanation|
 |---|---|---|
@@ -112,7 +142,7 @@ int main() {
 
 ### What is an Operator?
 
-An [[#^operator|operator]] is a symbol that instructs the compiler to perform a specific computation on one or more values. The values it acts on are called [[#^operand|operands]], and the combination yields a result. In the expression `2 + 3 = 5`, the `+` symbol is the operator, `2` and `3` are the operands, and `5` is the result of the operation.
+An operator is a symbol that instructs the compiler to perform a specific computation on one or more values. The values it acts on are called [[#^operand|operands]], and the combination yields a result. In the expression `2 + 3 = 5`, the `+` symbol is the operator, `2` and `3` are the operands, and `5` is the result of the operation.
 
 Operators are classified by the number of operands they require:
 
@@ -139,7 +169,7 @@ A [[#^unary-operator|unary operator]] needs exactly one operand (for example, ne
 |`/`|Division|`4 / 2`|`2`|
 |`%`|Modulo|`4 % 2`|`0`|
 
-The [[#^modulo|modulo operator]] `%` returns the _remainder_ after integer division, not the quotient. For example, `17 / 4` gives the quotient `4` (four goes into seventeen exactly four times), while `17 % 4` gives the remainder `1` — because 4 × 4 = 16 and 17 − 16 = 1.
+The [[#^modulo-operator|modulo operator]] `%` returns the _remainder_ after integer division, not the quotient. For example, `17 / 4` gives the quotient `4` (four goes into seventeen exactly four times), while `17 % 4` gives the remainder `1` — because 4 × 4 = 16 and 17 − 16 = 1.
 
 > [!bug] Integer Division Silently Truncates When both operands of `/` are integers, C performs integer division and discards the fractional part entirely. `17 / 4` evaluates to `4`, not `4.25`. No warning is issued. To preserve the decimal result, at least one operand must be a floating-point value: `17.0 / 4` gives `4.25`.
 
@@ -148,23 +178,33 @@ The [[#^modulo|modulo operator]] `%` returns the _remainder_ after integer divis
 The following program demonstrates all five arithmetic operators using two values entered by the user:
 
 ```c
-#include <stdio.h>       // printf and scanf
+#include <stdio.h>
 
 int main() {
-    int a, b;                               // two integer operands from the user
+    int a, b;
 
     printf("Enter two integers: ");
-    scanf("%d %d", &a, &b);                // read both integers in one scanf call
+    scanf("%d %d", &a, &b);
 
-    printf("Addition       : %d\n", a + b);  // sum of a and b
-    printf("Subtraction    : %d\n", a - b);  // b subtracted from a
-    printf("Multiplication : %d\n", a * b);  // product of a and b
-    printf("Division       : %d\n", a / b);  // integer quotient (decimal part dropped)
-    printf("Modulo         : %d\n", a % b);  // remainder after integer division
+    printf("Addition       : %d\n", a + b);
+    printf("Subtraction    : %d\n", a - b);
+    printf("Multiplication : %d\n", a * b);
+    printf("Division       : %d\n", a / b);
+    printf("Modulo         : %d\n", a % b);
 
     return 0;
 }
 ```
+
+> [!tip] Getting Two Integers in One Call
+> - `scanf("%d %d", &a, &b)` reads both integers in a single call — the space in the format string matches any whitespace between the two numbers
+> - Both `&a` and `&b` pass the addresses of the variables so `scanf` can write directly to their memory locations
+> - This is more concise than using two separate `scanf` calls
+
+> [!tip] Applying All Five Arithmetic Operators
+> - Each `printf` applies one arithmetic operator (`+`, `-`, `*`, `/`, `%`) and immediately prints the result
+> - The expressions `a + b`, `a - b`, etc. are evaluated inline — no temporary variable is needed
+> - Integer division with `/` truncates toward zero, while `%` gives the remainder after that division
 
 |Line|Code|Explanation|
 |---|---|---|
@@ -192,24 +232,34 @@ int main() {
 This sample reads two integers and prints the outcome of every relational comparison:
 
 ```c
-#include <stdio.h>       // printf and scanf
+#include <stdio.h>
 
 int main() {
-    int x, y;                                  // the two values to compare
+    int x, y;
 
     printf("Enter two integers: ");
-    scanf("%d %d", &x, &y);                    // read both values in one call
+    scanf("%d %d", &x, &y);
 
-    printf("%d < %d  = %d\n", x, y, x < y);   // 1 if x is less than y, else 0
-    printf("%d > %d  = %d\n", x, y, x > y);   // 1 if x is greater than y, else 0
-    printf("%d <= %d = %d\n", x, y, x <= y);  // 1 if x is less than or equal to y
-    printf("%d >= %d = %d\n", x, y, x >= y);  // 1 if x is greater than or equal to y
-    printf("%d == %d = %d\n", x, y, x == y);  // 1 if x exactly equals y
-    printf("%d != %d = %d\n", x, y, x != y);  // 1 if x does not equal y
+    printf("%d < %d  = %d\n", x, y, x < y);
+    printf("%d > %d  = %d\n", x, y, x > y);
+    printf("%d <= %d = %d\n", x, y, x <= y);
+    printf("%d >= %d = %d\n", x, y, x >= y);
+    printf("%d == %d = %d\n", x, y, x == y);
+    printf("%d != %d = %d\n", x, y, x != y);
 
     return 0;
 }
 ```
+
+> [!tip] Declaring Variables and Getting Input
+> - `int x, y;` declares two integer variables for comparison
+> - `scanf("%d %d", &x, &y)` reads both values in a single call
+> - The variables must be initialised via `scanf` before any comparison can produce a meaningful result
+
+> [!tip] Evaluating Relational Expressions
+> - Each relational expression (`x < y`, `x > y`, etc.) evaluates to `1` for true or `0` for false
+> - `%d` prints that boolean result as an integer — there is no dedicated boolean format specifier in C
+> - These operators form the foundation of every `if` statement and loop condition in C
 
 |Line|Code|Explanation|
 |---|---|---|
@@ -228,20 +278,30 @@ What makes these operators nuanced is that they can appear either _before_ or _a
 The following code illustrates the difference clearly:
 
 ```c
-#include <stdio.h>       // printf
+#include <stdio.h>
 
 int main() {
-    int a = 5, b = 5;    // both variables start at 5
-    int c, d;            // will capture the results of the two assignment expressions
+    int a = 5, b = 5;
+    int c, d;
 
-    c = a++;             // POST: c receives a's current value (5), THEN a becomes 6
-    d = ++b;             // PRE:  b increments to 6 first, THEN d receives the new value (6)
+    c = a++;
+    d = ++b;
 
-    printf("%d %d\n", c, d);  // output: 5 6
+    printf("%d %d\n", c, d);
 
     return 0;
 }
 ```
+
+> [!tip] Setting Up Two Identical Starting Values
+> - Both `a` and `b` start at 5 so the difference between post and pre-increment is clearly visible
+> - `c` and `d` will capture the results of the two different increment forms
+> - After these operations, `a` and `b` will both be 6, but `c` and `d` will differ
+
+> [!tip] Post-Increment vs Pre-Increment
+> - `c = a++` is post-increment: `c` receives `a`'s current value (5), then `a` becomes 6
+> - `d = ++b` is pre-increment: `b` increments to 6 first, then `d` receives the new value (6)
+> - The output `5 6` demonstrates the timing difference — post gives the old value, pre gives the new one
 
 |Line|Code|Explanation|
 |---|---|---|
@@ -266,19 +326,24 @@ graph TD
 The lecture demonstrated the following program, which confirms that standalone pre and post increment always produce the same result:
 
 ```c
-#include <stdio.h>       // printf
+#include <stdio.h>
 
 int main() {
-    int a = 10, b = 10;   // both variables start at 10
+    int a = 10, b = 10;
 
-    a++;                  // post-increment as a standalone statement — a becomes 11
-    ++b;                  // pre-increment as a standalone statement — b becomes 11
+    a++;
+    ++b;
 
-    printf("%d %d\n", a, b);  // prints: 11 11 — no difference when not inside an expression
+    printf("%d %d\n", a, b);
 
     return 0;
 }
 ```
+
+> [!tip] Standalone Increment Demonstration
+> - `a++` (post-increment) and `++b` (pre-increment) both simply add 1 when used as standalone statements
+> - The output `11 11` confirms there is no difference when the result is not captured in an expression
+> - The pre/post distinction only matters when the expression's value is also being assigned or used
 
 |Line|Code|Explanation|
 |---|---|---|
@@ -293,22 +358,22 @@ int main() {
 
 |Term|Definition|
 |---|---|
-|user input|Data provided by a person at runtime through the keyboard, stored into a variable using `scanf`|
-|scanf|Standard library function that reads formatted data from the keyboard; requires variable addresses using the `&` operator|
-|format specifier|A placeholder in a `printf` or `scanf` format string that describes the expected data type, e.g. `%d` for integers|
-|address-of operator|The `&` symbol; placed before a variable name it produces that variable's memory address|
-|operator|A symbol that instructs the compiler to perform a specific operation on one or more operands|
-|operand|A value or variable that an operator acts upon|
-|unary operator|An operator that requires exactly one operand, e.g. negation `-5` or increment `++a`|
-|binary operator|An operator that requires exactly two operands, e.g. `a + b`|
-|ternary operator|An operator that requires three operands; in C this is the conditional `? :` operator|
-|arithmetic operators|The five operators for mathematical calculation: `+` (addition), `-` (subtraction), `*` (multiplication), `/` (division), `%` (modulo)|
-|modulo operator|The `%` operator; returns the integer remainder after dividing two integers, e.g. `17 % 4` is `1`|
-|relational operators|Operators that compare two values and return `1` for true or `0` for false: `<`, `>`, `<=`, `>=`, `==`, `!=`|
-|increment operator|The `++` operator; adds 1 to the operand; placement determines pre or post behaviour|
-|decrement operator|The `--` operator; subtracts 1 from the operand; placement determines pre or post behaviour|
-|pre-increment|The `++a` form: the variable is incremented before its value is used in the surrounding expression|
-|post-increment|The `a++` form: the variable's current value is used in the expression first, then the variable is incremented|
+| user input | Data provided by a person at runtime through the keyboard, stored into a variable using `scanf` | ^user-input
+| scanf | Standard library function that reads formatted data from the keyboard; requires variable addresses using the `&` operator |
+| format specifier | A placeholder in a `printf` or `scanf` format string that describes the expected data type, e.g. `%d` for integers |
+| address-of operator | The `&` symbol; placed before a variable name it produces that variable's memory address | ^address-of
+| operator | A symbol that instructs the compiler to perform a specific operation on one or more operands | ^operator
+| operand | A value or variable that an operator acts upon | ^operand
+| unary operator | An operator that requires exactly one operand, e.g. negation `-5` or increment `++a` | ^unary-operator
+| binary operator | An operator that requires exactly two operands, e.g. `a + b` | ^binary-operator
+| ternary operator | An operator that requires three operands; in C this is the conditional `? :` operator | ^ternary-operator
+| arithmetic operators | The five operators for mathematical calculation: `+` (addition), `-` (subtraction), `*` (multiplication), `/` (division), `%` (modulo) | ^arithmetic-operators
+| modulo operator | The `%` operator; returns the integer remainder after dividing two integers, e.g. `17 % 4` is `1` | ^modulo-operator
+| relational operators | Operators that compare two values and return `1` for true or `0` for false: `<`, `>`, `<=`, `>=`, `==`, `!=` | ^relational-operators
+| increment operator | The `++` operator; adds 1 to the operand; placement determines pre or post behaviour | ^increment-op
+| decrement operator | The `--` operator; subtracts 1 from the operand; placement determines pre or post behaviour | ^decrement-op
+| pre-increment | The `++a` form: the variable is incremented before its value is used in the surrounding expression | ^pre-increment
+| post-increment | The `a++` form: the variable's current value is used in the expression first, then the variable is incremented | ^post-increment
 
 > [!example]- Try It Yourself **Exercise 1 — Multi-Field Input** Write a program that reads a person's age and their monthly salary (as integers) using two separate `scanf` calls, each preceded by a descriptive prompt. Then print: "At age [age], your annual salary is [salary × 12]." Compute the annual salary using the `*` operator inside the `printf` format argument.
 > 

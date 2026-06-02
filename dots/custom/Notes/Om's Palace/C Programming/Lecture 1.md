@@ -93,13 +93,33 @@ graph TD
 Here is the standard first program written in C:
 
 ```c
-#include <stdio.h>      // gives us access to printf and scanf
+#include <stdio.h>
 
-int main() {            // entry point — program always starts here
-    printf("Hello, World!\n"); // print to console; \n moves to next line
-    return 0;           // tell the OS the program finished successfully
+int main() {
+    printf("Hello, World!\n");
+    return 0;
 }
 ```
+
+> [!tip] Including Standard Libraries
+> - `#include <stdio.h>` is a preprocessor directive that imports the Standard Input/Output header file
+> - It gives the program access to `printf` for printing text and `scanf` for reading keyboard input
+> - Without this line, the compiler has no knowledge of `printf` and will refuse to compile the program
+
+> [!tip] Program Entry Point
+> - `int main()` is the function the operating system calls first when the program launches
+> - Every C program must have exactly one `main` function — execution always starts here, nowhere else
+> - The `int` return type signals that this function must end with a `return` statement followed by an integer
+
+> [!tip] Printing to the Console
+> - `printf("Hello, World!\n")` sends the text `Hello, World!` to the terminal output
+> - `\n` is an escape sequence — it represents a newline character and moves the cursor to the next line
+> - The text inside double quotes is printed exactly as written, character by character
+
+> [!tip] Exiting the Program
+> - `return 0;` sends exit code `0` back to the operating system when `main` finishes
+> - By convention, `0` means the program completed successfully with no errors
+> - Because `main` is declared as `int`, this return statement is required — omitting it is undefined behaviour in older C standards
 
 |Line|Code|Explanation|
 |---|---|---|
@@ -127,20 +147,20 @@ graph TD
 
 ## Key Terms
 
-|Term|Definition|
-|---|---|
-|C|A general-purpose, compiled programming language developed in 1972 by Dennis Ritchie|
-|Dennis Ritchie|Creator of the C language, worked at Bell Laboratories, USA|
-|Bell Laboratories|US research facility where C and UNIX were developed|
-|UNIX|Operating system that C was originally built to develop|
-|BCPL|Basic Combined Programming Language — earliest ancestor of C|
-|B|Predecessor to C, derived from BCPL|
-|ANSI|American National Standards Institute — body that standardized the C language|
-|ANSI C|The standardized, cross-platform version of C released after Ritchie's original|
-|compiler|A program that translates C source code into machine-executable instructions|
-|GCC|GNU Compiler Collection — the most widely used C compiler for learning and development|
-|IDE|Integrated Development Environment — editor with built-in tools for writing and running code|
-|text editor|A program used to write code, such as VS Code or Notepad++|
+| Term              | Definition                                                                                   |                 |
+| ----------------- | -------------------------------------------------------------------------------------------- | --------------- |
+| C                 | A general-purpose, compiled programming language developed in 1972 by Dennis Ritchie         | ^c-lang         |
+| Dennis Ritchie    | Creator of the C language, worked at Bell Laboratories, USA                                  | ^dennis-ritchie |
+| Bell Laboratories | US research facility where C and UNIX were developed                                         | ^bell-labs      |
+| UNIX              | Operating system that C was originally built to develop                                      | ^unix           |
+| BCPL              | Basic Combined Programming Language — earliest ancestor of C                                 | ^bcpl           |
+| B                 | Predecessor to C, derived from BCPL                                                          | ^b-lang         |
+| ANSI              | American National Standards Institute — body that standardized the C language                | ^ansi           |
+| ANSI C            | The standardized, cross-platform version of C released after Ritchie's original              | ^ansi-c         |
+| compiler          | A program that translates C source code into machine-executable instructions                 | ^compiler       |
+| GCC               | GNU Compiler Collection — the most widely used C compiler for learning and development       | ^gcc            |
+| IDE               | Integrated Development Environment — editor with built-in tools for writing and running code | ^ide            |
+| text editor       | A program used to write code, such as VS Code or Notepad++                                   | ^text-editor    |
 
 ---
 

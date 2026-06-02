@@ -43,31 +43,56 @@ Verification: (1×8) + (1×4) + (0×2) + (1×1) = 8 + 4 + 0 + 1 = **13** ✓
 ### Sample Program: Decimal to Binary Conversion
 
 ```c
-#include <stdio.h>      // provides printf and scanf
+#include <stdio.h>
 
-int main() {            // program entry point — execution begins here
-    int decimal;        // stores the user's decimal input
-    int binary[16];     // array to hold up to 16 binary digits (remainders)
-    int i = 0;          // index for the binary array
+int main() {
+    int decimal;
+    int binary[16];
+    int i = 0;
 
-    printf("Enter a decimal number: ");  // prompt the user
-    scanf("%d", &decimal);              // read an integer from the keyboard
+    printf("Enter a decimal number: ");
+    scanf("%d", &decimal);
 
-    while (decimal > 0) {               // repeat until the quotient reaches 0
-        binary[i] = decimal % 2;        // capture remainder: always 0 or 1
-        decimal = decimal / 2;          // perform integer division to get new quotient
-        i++;                            // advance to next array slot
+    while (decimal > 0) {
+        binary[i] = decimal % 2;
+        decimal = decimal / 2;
+        i++;
     }
 
     printf("Binary: ");
-    for (int j = i - 1; j >= 0; j--) { // traverse the array in reverse (MSB first)
-        printf("%d", binary[j]);        // print each binary digit
+    for (int j = i - 1; j >= 0; j--) {
+        printf("%d", binary[j]);
     }
-    printf("\n");   // move to a new line after the result
+    printf("\n");
 
-    return 0;       // signal to the OS that the program ended successfully
+    return 0;
 }
 ```
+
+> [!tip] Including Standard Libraries
+> - `#include <stdio.h>` imports the Standard Input/Output header so [[Lecture 2#^printf|printf]] and [[Lecture 2#^scanf|scanf]] are available
+> - Every C program that performs any console input or output must include this header
+> - Without it, the [[Lecture 1#^compiler|compiler]] will not recognise any I/O function calls
+
+> [!tip] Declaring Variables
+> - `int decimal` stores the user's input number, `int binary[16]` is an [[Lecture 4#^array|array]] to hold up to 16 binary digits, and `int i` tracks how many remainders have been stored
+> - The array size of 16 can handle decimal numbers up to 65,535
+> - `i` starts at 0 because C arrays are zero-indexed — the first slot is `binary[0]`
+
+> [!tip] Getting User Input
+> - `printf` displays a prompt asking the user to enter a decimal number
+> - `scanf("%d", &decimal)` reads one integer from the keyboard and stores it at `decimal`'s memory address
+> - The `&` (address-of) operator is required because `scanf` needs to know where in memory to write the value
+
+> [!tip] Core Logic — Repeated Division
+> - The `while` loop runs as long as the quotient is greater than 0, performing the repeated-division algorithm
+> - `decimal % 2` extracts the remainder (always 0 or 1), which is stored in the next array slot
+> - `decimal / 2` performs integer division to get the new quotient — the fractional part is discarded
+
+> [!tip] Displaying the Result
+> - The `for` loop traverses the array in reverse (from `i - 1` down to 0) so the most significant bit prints first
+> - Each digit is printed with `%d` since binary digits are integers (0 or 1)
+> - `printf("\n")` moves the cursor to a new line after the result
 
 |Line|Code|Explanation|
 |---|---|---|
@@ -125,31 +150,41 @@ Because 8 equals 2³, every octal digit directly corresponds to exactly three bi
 ### Sample Program: Decimal to Octal Conversion
 
 ```c
-#include <stdio.h>      // standard I/O library
+#include <stdio.h>
 
-int main() {            // entry point
-    int decimal;        // stores the user's input
-    int octal[16];      // array to collect remainders (digits 0–7)
-    int i = 0;          // array index / counter
+int main() {
+    int decimal;
+    int octal[16];
+    int i = 0;
 
     printf("Enter a decimal number: ");
-    scanf("%d", &decimal);           // read the decimal input
+    scanf("%d", &decimal);
 
-    while (decimal > 0) {            // loop until quotient hits zero
-        octal[i] = decimal % 8;      // remainder is always in range 0–7
-        decimal = decimal / 8;       // divide by the base (8)
+    while (decimal > 0) {
+        octal[i] = decimal % 8;
+        decimal = decimal / 8;
         i++;
     }
 
     printf("Octal: ");
-    for (int j = i - 1; j >= 0; j--) {   // print in reverse to show MSB first
+    for (int j = i - 1; j >= 0; j--) {
         printf("%d", octal[j]);
     }
     printf("\n");
 
-    return 0;   // successful exit
+    return 0;
 }
 ```
+
+> [!tip] Core Logic — Division by 8
+> - The structure is identical to the binary converter — only the divisor changes from 2 to 8
+> - `decimal % 8` extracts a remainder guaranteed to fall between 0 and 7
+> - `decimal / 8` advances the algorithm by shrinking the quotient toward zero
+
+> [!tip] Displaying the Result
+> - The `for` loop reverses the collected remainders so the most significant octal digit prints first
+> - The same reverse-printing pattern appears in all three conversion programs in this lecture
+> - `return 0` signals to the operating system that the program ended successfully
 
 |Line|Code|Explanation|
 |---|---|---|
@@ -196,39 +231,54 @@ Because 16 = 2⁴, every hex digit maps directly to a 4-bit binary group. Conver
 ### Sample Program: Decimal to Hexadecimal Conversion
 
 ```c
-#include <stdio.h>      // standard I/O library
+#include <stdio.h>
 
-int main() {            // program entry point
-    int decimal;        // user's input
-    int remainder;      // current remainder from division
-    char hex[16];       // character array — hex digits can be letters A–F
-    int i = 0;          // array index
+int main() {
+    int decimal;
+    int remainder;
+    char hex[16];
+    int i = 0;
 
     printf("Enter a decimal number: ");
     scanf("%d", &decimal);
 
     while (decimal > 0) {
-        remainder = decimal % 16;        // remainder is always in range 0–15
+        remainder = decimal % 16;
 
         if (remainder < 10) {
-            hex[i] = remainder + '0';    // digits 0–9: map to characters '0'–'9'
+            hex[i] = remainder + '0';
         } else {
-            hex[i] = remainder - 10 + 'A';   // digits 10–15: map to 'A'–'F'
+            hex[i] = remainder - 10 + 'A';
         }
 
-        decimal = decimal / 16;         // divide by the base (16)
+        decimal = decimal / 16;
         i++;
     }
 
     printf("Hexadecimal: ");
-    for (int j = i - 1; j >= 0; j--) { // print MSB first
-        printf("%c", hex[j]);           // %c prints a character, not an integer
+    for (int j = i - 1; j >= 0; j--) {
+        printf("%c", hex[j]);
     }
     printf("\n");
 
-    return 0;   // successful exit
+    return 0;
 }
 ```
+
+> [!tip] Declaring a Character Array for Hex Digits
+> - `char hex[16]` uses a character array instead of an integer array because hex digits can be letters (A–F)
+> - Each slot stores one character — either a digit character like `'0'` or a letter like `'A'`
+> - This is the key difference from the binary and octal programs, which only need integer arrays
+
+> [!tip] Mapping Remainders to Hex Characters
+> - When the remainder is 0–9, adding the ASCII value of `'0'` (48) converts the integer to its character equivalent
+> - When the remainder is 10–15, subtracting 10 gives an offset 0–5, and adding `'A'` (65) maps it to `'A'`–`'F'`
+> - This ASCII arithmetic avoids the need for a lookup table or switch statement
+
+> [!tip] Printing Characters with `%c`
+> - The `%c` format specifier in `printf` prints the stored character rather than its numeric ASCII code
+> - Using `%d` here would print the ASCII value (e.g., 65) instead of the letter (e.g., A)
+> - The reverse loop again ensures the most significant hex digit prints first
 
 |Line|Code|Explanation|
 |---|---|---|
@@ -244,7 +294,7 @@ int main() {            // program entry point
 
 [[#^machine-level-language|Machine level language]] is the lowest possible level of programming. Every instruction is expressed as a sequence of binary digits — 0s and 1s — which is why it is also referred to as binary language.
 
-The defining characteristic of machine level language is that the processor executes it directly. No translation step is needed between the written code and the hardware; the CPU reads the binary patterns and acts on them immediately. This stands in contrast to every other programming language, which must first be converted into machine code before any execution can happen.
+The defining characteristic of machine level language is that the processor executes it directly. No translation step is needed between the written code and the hardware; the [[Lecture 2#^cpu|CPU]] reads the binary patterns and acts on them immediately. This stands in contrast to every other programming language, which must first be converted into machine code before any execution can happen.
 
 Despite this advantage of directness, machine level language is extremely difficult for humans to write or read. A simple arithmetic operation might appear as a string like `10110000 01100001`, with no visible structure or meaning to a human reader. Because of this, higher-level languages were developed to spare programmers from writing raw binary.
 
@@ -280,7 +330,7 @@ Because the processor cannot understand mnemonics directly, a translation progra
 
 [[#^high-level-language|High level language]] is the most human-readable form of programming. Instructions are written in a syntax that closely resembles plain English, with constructs like loops, functions, and conditions that map to human reasoning rather than hardware behaviour.
 
-Languages such as [[#^c-language|C]], C++, and JAVA fall into this category. They are designed to be user-friendly, straightforward to learn, and easy to maintain over time. The trade-off is that a computer cannot execute them directly — a [[#^compiler|compiler]] (or interpreter) must translate the source code into machine-level binary before any execution occurs.
+Languages such as [[Lecture 1#^c-lang|C]], C++, and JAVA fall into this category. They are designed to be user-friendly, straightforward to learn, and easy to maintain over time. The trade-off is that a computer cannot execute them directly — a [[Lecture 1#^compiler|compiler]] (or interpreter) must translate the source code into machine-level binary before any execution occurs.
 
 > [!info] The Abstraction Principle The further a language is from the hardware, the more abstract it becomes. High level languages hide the details of memory addresses, registers, and binary encoding behind meaningful vocabulary. This abstraction is what makes large, complex programs manageable for human developers.
 
@@ -303,17 +353,17 @@ graph TD
 
 |Term|Definition|
 |---|---|
-|Binary|A base-2 number system using only the digits 0 and 1 to represent all values|
-|Decimal|The standard base-10 number system using digits 0 through 9|
-|Octal|A base-8 number system using digits 0 through 7; each octal digit represents exactly 3 binary digits|
-|Hexadecimal|A base-16 number system using digits 0–9 and letters A–F (A=10 through F=15); each hex digit represents exactly 4 binary digits|
-|Machine Level Language|The lowest-level programming language, consisting entirely of binary (0s and 1s); executed directly by the CPU with no conversion needed|
-|Mnemonic|A short symbolic abbreviation used in assembly language to represent a specific CPU instruction (e.g., ADD, MUL, HLT)|
-|Assembly Level Language|A low-level language that uses mnemonics to express CPU instructions; requires an assembler to convert to binary machine code|
-|Assembler|A program that translates assembly language mnemonics into binary machine code so the CPU can execute them|
-|High Level Language|A human-readable programming language (C, C++, JAVA) that abstracts hardware details; requires a compiler or interpreter before execution|
-|Compiler|A program that translates high-level language source code into binary machine code|
-|C|A general-purpose high-level compiled programming language that sits close to the hardware; examples like C programs from this course|
+| Binary | A base-2 number system using only the digits 0 and 1 to represent all values | ^binary
+| Decimal | The standard base-10 number system using digits 0 through 9 | ^decimal
+| Octal | A base-8 number system using digits 0 through 7; each octal digit represents exactly 3 binary digits | ^octal
+| Hexadecimal | A base-16 number system using digits 0–9 and letters A–F (A=10 through F=15); each hex digit represents exactly 4 binary digits | ^hexadecimal
+| Machine Level Language | The lowest-level programming language, consisting entirely of binary (0s and 1s); executed directly by the CPU with no conversion needed | ^machine-level-language
+| Mnemonic | A short symbolic abbreviation used in assembly language to represent a specific CPU instruction (e.g., ADD, MUL, HLT) | ^mnemonic
+| Assembly Level Language | A low-level language that uses mnemonics to express CPU instructions; requires an assembler to convert to binary machine code | ^assembly-level-language
+| Assembler | A program that translates assembly language mnemonics into binary machine code so the CPU can execute them | ^assembler
+| High Level Language | A human-readable programming language (C, C++, JAVA) that abstracts hardware details; requires a compiler or interpreter before execution | ^high-level-language
+| Compiler | A program that translates high-level language source code into binary machine code |
+| C | A general-purpose high-level compiled programming language that sits close to the hardware; examples like C programs from this course |
 
 ---
 

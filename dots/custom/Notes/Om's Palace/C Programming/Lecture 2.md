@@ -35,7 +35,7 @@ Examples include the mouse, keyboard, touchscreen, and joystick.
 
 ### Output Devices
 
-An [[#^output-device|Output Device]] takes the results produced by the computer and presents them in a format that humans can read or use. When your C program calls `printf`, it is ultimately sending data to an output device.
+An [[#^output-device|Output Device]] takes the results produced by the computer and presents them in a format that humans can read or use. When your C program calls [[#^printf|printf]], it is ultimately sending data to an output device.
 
 Examples include the monitor, printer, and plotter.
 
@@ -95,26 +95,49 @@ The lecture illustrates all six sections using a single cohesive example: a prog
 > [!warning] Non-Standard Code in Slides The lecture uses `void main()`. This is non-standard C — the correct form per the C standard is `int main()`, which returns an integer exit code to the operating system. The slide version is shown faithfully below, but use `int main()` in your own programs.
 
 ```c
-// WAP to find maximum of two numbers     // Documentation: states what the program does
+#include <stdio.h>
 
-#include <stdio.h>                         // Linking: pulls in standard I/O for printf/scanf
+void find_max(int a, int b);
 
-void find_max(int a, int b);               // Declaration: forward-declares the subroutine
+int max = 0;
 
-int max = 0;                               // Global: accessible by both main() and find_max()
-
-void main() {                              // Main Function: execution begins here (non-standard)
-    int a, b;                              // local variables to hold the user's two numbers
-    printf("Enter a and b");               // prompt the user
-    scanf("%d%d", &a, &b);                // read two integers from keyboard input
-    find_max(a, b);                        // call the subroutine; result stored in global max
-    printf("Max is: %d", max);            // print the result
+void main() {
+    int a, b;
+    printf("Enter a and b");
+    scanf("%d%d", &a, &b);
+    find_max(a, b);
+    printf("Max is: %d", max);
 }
 
-void find_max(int a, int b) {             // Subroutine: full definition of find_max
-    max = a > b ? a : b;                  // ternary: if a > b, max = a; otherwise max = b
+void find_max(int a, int b) {
+    max = a > b ? a : b;
 }
 ```
+
+> [!tip] Including Standard Libraries
+> - `#include <stdio.h>` imports the Standard Input/Output header, giving access to `printf` and `scanf`
+> - This directive belongs in the Linking Section — the very first functional line after documentation comments
+> - Without it, the [[Lecture 1#^compiler|compiler]] will not recognise any I/O function calls and will refuse to compile
+
+> [!tip] Forward-Declaring the Subroutine
+> - `void find_max(int a, int b);` is a function prototype placed in the Declaration Section
+> - It tells the compiler the function's name, return type, and parameter types before the full definition appears later
+> - This allows `main()` to call `find_max` even though its full body is written further down in the file
+
+> [!tip] Setting Up Global State
+> - `int max = 0;` is declared outside all functions, making it a global variable in the Global Section
+> - Both `main()` and `find_max()` can read and modify `max` because it exists at file scope
+> - Global variables persist for the entire lifetime of the program
+
+> [!tip] Program Entry Point and User Interaction
+> - `void main()` is the entry point where execution begins — though `int main()` is the standard form
+> - `printf("Enter a and b")` prompts the user, then `scanf("%d%d", &a, &b)` reads two integers from the keyboard
+> - The `&` before each variable gives [[#^scanf|scanf]] the memory address where it should store the input value
+
+> [!tip] Defining the Helper Function
+> - `void find_max(int a, int b)` in the Subroutine Section provides the full implementation of the forward-declared function
+> - The ternary expression `a > b ? a : b` evaluates the condition and assigns the larger value to the global `max`
+> - Splitting logic into subroutines keeps `main()` readable and makes pieces of logic reusable
 
 |Line|Code|Explanation|
 |---|---|---|
@@ -152,7 +175,7 @@ The **[[#^linking-section|Linking Section]]** uses `#include` directives to impo
 
 > [!tip] Always Link What You Use If your program uses `printf` or `scanf`, the linking section must contain `#include <stdio.h>`. Omitting it is one of the most frequent beginner mistakes and produces a compiler error.
 
-The **[[#^declaration-section|Declaration Section]]** holds function prototypes — abbreviated signatures that tell the [[Lecture 1#^compiler|compiler]] a function's name, return type, and parameter types before the full definition appears.
+The **[[#^declaration-section|Declaration Section]]** holds function prototypes — abbreviated signatures that tell the compiler a function's name, return type, and parameter types before the full definition appears.
 
 The **[[#^global-section|Global Section]]** declares variables outside of any function. These variables exist for the entire lifetime of the program and can be read or modified by every function.
 
@@ -170,22 +193,22 @@ The **[[#^subroutine-section|Subroutine Section]]** holds the complete definitio
 
 |Term|Definition|
 |---|---|
-|Input Device|Hardware that allows humans to feed data into a computer (e.g. keyboard, mouse)|
-|Output Device|Hardware that presents computer results in human-readable form (e.g. monitor, printer)|
-|CPU|Central Processing Unit — the brain of the computer; carries out all computation|
-|ALU|Arithmetic Logic Unit — the CPU sub-unit that performs arithmetic and logical operations|
-|Control Unit|CPU sub-unit that coordinates all other units and manages memory read/write operations|
-|Primary Memory|Fast, directly CPU-accessible memory where active programs run; also called RAM|
-|RAM|Random Access Memory — volatile primary memory that loses all data when power is removed|
-|Secondary Memory|Non-volatile external storage (hard disk, USB) that retains data permanently|
-|Documentation Section|The comment-only section at the top of a C program describing its purpose|
-|Linking Section|Contains `#include` directives that import library headers into the program|
-|Declaration Section|Contains function prototypes informing the compiler of subroutine signatures before their definitions|
-|Global Section|Holds variables declared outside all functions, making them accessible program-wide|
-|Main Function Section|Contains the `main()` function — the mandatory entry point of every C program|
-|Subroutine Section|Contains the full definitions of helper functions used by `main()`|
-|printf|Standard library function that prints formatted text to the console|
-|scanf|Standard library function that reads formatted input from the keyboard|
+| Input Device | Hardware that allows humans to feed data into a computer (e.g. keyboard, mouse) | ^input-device
+| Output Device | Hardware that presents computer results in human-readable form (e.g. monitor, printer) | ^output-device
+| CPU | Central Processing Unit — the brain of the computer; carries out all computation | ^cpu
+| ALU | Arithmetic Logic Unit — the CPU sub-unit that performs arithmetic and logical operations | ^alu
+| Control Unit | CPU sub-unit that coordinates all other units and manages memory read/write operations | ^control-unit
+| Primary Memory | Fast, directly CPU-accessible memory where active programs run; also called RAM | ^primary-memory
+| RAM | Random Access Memory — volatile primary memory that loses all data when power is removed | ^ram
+| Secondary Memory | Non-volatile external storage (hard disk, USB) that retains data permanently | ^secondary-memory
+| Documentation Section | The comment-only section at the top of a C program describing its purpose | ^doc-section
+| Linking Section | Contains `#include` directives that import library headers into the program | ^linking-section
+| Declaration Section | Contains function prototypes informing the compiler of subroutine signatures before their definitions | ^declaration-section
+| Global Section | Holds variables declared outside all functions, making them accessible program-wide | ^global-section
+| Main Function Section | Contains the `main()` function — the mandatory entry point of every C program | ^main-section
+| Subroutine Section | Contains the full definitions of helper functions used by `main()` | ^subroutine-section
+| printf | Standard library function that prints formatted text to the console | ^printf
+| scanf | Standard library function that reads formatted input from the keyboard | ^scanf
 
 ---
 

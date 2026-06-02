@@ -4,7 +4,7 @@
 
 # Understanding Operators with Programs (Part 2)
 
-Lecture 7 is the second installment in the operators series. Part 1 introduced the theory behind [[Lecture 6#^arithmetic-operators|arithmetic operators]], [[Lecture 6#^relational-operators|relational operators]], and [[Lecture 6#^increment-decrement|increment and decrement operators]]. This session opens by putting those three categories into working programs, then expands the operator landscape with four new categories: [[#^logical-operators|logical operators]], [[#^bitwise-operators|bitwise operators]], [[#^compound-assignment|compound assignment operators]], and the [[#^ternary-operator|ternary operator]].
+Lecture 7 is the second installment in the operators series. Part 1 introduced the theory behind [[Lecture 6#^arithmetic-operators|arithmetic operators]], [[Lecture 6#^relational-operators|relational operators]], and [[Lecture 6#^increment-op|increment]] and [[Lecture 6#^decrement-op|decrement]] operators. This session opens by putting those three categories into working programs, then expands the operator landscape with four new categories: [[#^logical-operators|logical operators]], [[#^bitwise-operators|bitwise operators]], [[#^compound-assignment|compound assignment operators]], and the [[Lecture 6#^ternary-operator|ternary operator]].
 
 ## Arithmetic Operators — Program Demonstration
 
@@ -13,20 +13,30 @@ Lecture 7 is the second installment in the operators series. Part 1 introduced t
 Translating arithmetic operator theory into a running program surfaces one practical trap: C performs integer division when both operands are `int`, silently dropping any remainder. This means `20 / 7` yields `2`, not approximately `2.857`.
 
 ```c
-#include <stdio.h>       // required for printf
+#include <stdio.h>
 
 int main() {
-    int a = 20, b = 7;   // sample operands for all five operators
+    int a = 20, b = 7;
 
-    printf("a + b  = %d\n", a + b);  // addition:          27
-    printf("a - b  = %d\n", a - b);  // subtraction:       13
-    printf("a * b  = %d\n", a * b);  // multiplication:   140
-    printf("a / b  = %d\n", a / b);  // integer division:   2 (remainder discarded)
-    printf("a %% b = %d\n", a % b);  // modulo/remainder:   6
+    printf("a + b  = %d\n", a + b);
+    printf("a - b  = %d\n", a - b);
+    printf("a * b  = %d\n", a * b);
+    printf("a / b  = %d\n", a / b);
+    printf("a %% b = %d\n", a % b);
 
-    return 0;                         // signal successful completion to the OS
+    return 0;
 }
 ```
+
+> [!tip] Setting Up the Operands
+> - Both `a` and `b` are declared as `int` — this matters critically for the division test
+> - When both operands are integers, C performs integer division and discards the fractional part
+> - The values 20 and 7 are chosen specifically to demonstrate this truncation effect
+
+> [!tip] Demonstrating All Five Arithmetic Operators
+> - Addition, subtraction, and multiplication work exactly as expected: 27, 13, and 140
+> - `a / b` gives `2` rather than `2.857` because integer division discards the remainder
+> - `a % b` gives `6` — the remainder after 20 ÷ 7, which is the part that `/` throws away
 
 |Line|Code|Explanation|
 |---|---|---|
@@ -49,18 +59,23 @@ Relational operators compare two values and always return exactly `1` (true) or 
 #include <stdio.h>
 
 int main() {
-    int a = 10, b = 20;  // a is the smaller value for these tests
+    int a = 10, b = 20;
 
-    printf("a == b : %d\n", a == b);  // equal to:          0 (false, 10 != 20)
-    printf("a != b : %d\n", a != b);  // not equal to:      1 (true, they differ)
-    printf("a >  b : %d\n", a > b);   // greater than:      0 (false, 10 < 20)
-    printf("a <  b : %d\n", a < b);   // less than:         1 (true, 10 < 20)
-    printf("a >= b : %d\n", a >= b);  // greater or equal:  0 (false)
-    printf("a <= b : %d\n", a <= b);  // less or equal:     1 (true, 10 <= 20)
+    printf("a == b : %d\n", a == b);
+    printf("a != b : %d\n", a != b);
+    printf("a >  b : %d\n", a > b);
+    printf("a <  b : %d\n", a < b);
+    printf("a >= b : %d\n", a >= b);
+    printf("a <= b : %d\n", a <= b);
 
     return 0;
 }
 ```
+
+> [!tip] Testing All Six Relational Operators
+> - `a` is set to 10 and `b` to 20, making many comparisons clearly false
+> - Each expression evaluates to `1` (true) or `0` (false) and is printed with `%d`
+> - `a == b` returns 0 because 10 ≠ 20; `a < b` returns 1 because 10 < 20
 
 |Line|Code|Explanation|
 |---|---|---|
@@ -82,18 +97,23 @@ The key distinction is between the **prefix** form (`++a`) and the **postfix** f
 #include <stdio.h>
 
 int main() {
-    int a = 5;                          // all tests start from this baseline
+    int a = 5;
 
-    printf("a     = %d\n", a);          //  5 — initial value
-    printf("a++   = %d\n", a++);        //  5 — current value printed, then a becomes 6
-    printf("a     = %d\n", a);          //  6 — post-increment confirmed
-    printf("++a   = %d\n", ++a);        //  7 — a incremented to 7 first, then printed
-    printf("a--   = %d\n", a--);        //  7 — current value printed, then a becomes 6
-    printf("--a   = %d\n", --a);        //  5 — a decremented to 5 first, then printed
+    printf("a     = %d\n", a);
+    printf("a++   = %d\n", a++);
+    printf("a     = %d\n", a);
+    printf("++a   = %d\n", ++a);
+    printf("a--   = %d\n", a--);
+    printf("--a   = %d\n", --a);
 
     return 0;
 }
 ```
+
+> [!tip] Tracing Pre and Post Increment/Decrement
+> - `a++` prints the current value (5) first, then increments `a` to 6 — this is post-increment
+> - `++a` increments `a` to 7 first, then prints the new value (7) — this is pre-increment
+> - The same logic applies to `a--` and `--a`, but subtracting 1 instead of adding
 
 |Line|Code|Explanation|
 |---|---|---|
@@ -108,13 +128,13 @@ int main() {
 
 ## Logical Operators
 
-[[#^logical-operators|Logical operators]] combine or invert boolean conditions and are the foundation of every decision-making construct in C. Because C has no dedicated boolean type in its classic form, the language treats `0` as false and any non-zero value as true. The three operators are the [[#^and-operator|AND (`&&`)]], [[#^or-operator|OR (`||`)]], and [[#^not-operator|NOT (`!`)]].
+Logical operators combine or invert boolean conditions and are the foundation of every decision-making construct in C. Because C has no dedicated boolean type in its classic form, the language treats `0` as false and any non-zero value as true. The three operators are the [[#^and-operator|AND (`&&`)]], [[#^or-operator|OR (`||`)]], and [[#^not-operator|NOT (`!`)]].
 
 **AND (`&&`)** requires both operands to be non-zero for the result to be `1`. If either operand is zero, the whole expression evaluates to `0`.
 
 **OR (`||`)** needs only one non-zero operand to produce `1`. Both operands must be zero for the result to be `0`.
 
-**NOT (`!`)** is a unary operator that inverts the truth value of a single operand — `!0` gives `1`, and applying `!` to any non-zero value gives `0`.
+**NOT (`!`)** is a [[Lecture 6#^unary-operator|unary operator]] that inverts the truth value of a single [[Lecture 6#^operand|operand]] — `!0` gives `1`, and applying `!` to any non-zero value gives `0`.
 
 The slide works through several examples to cement these rules:
 
@@ -148,21 +168,31 @@ graph TD
 > [!warning] Live Demo — Check Video This section was a live demonstration and was not captured in the slides. Refer back to the lecture video for the walkthrough.
 
 ```c
-#include <stdio.h>        // provides printf
+#include <stdio.h>
 
 int main() {
-    int a = 23, b = 10, c = 0;  // c = 0 acts as a "false" value in C
+    int a = 23, b = 10, c = 0;
 
-    printf("a && b  = %d\n", a && b);  // 1: both non-zero, result is true
-    printf("a && c  = %d\n", a && c);  // 0: c is zero, short-circuits to false
-    printf("a || c  = %d\n", a || c);  // 1: a is non-zero, short-circuits to true
-    printf("c || c  = %d\n", c || c);  // 0: both zero, both false
-    printf("!c      = %d\n", !c);      // 1: NOT false = true
-    printf("!a      = %d\n", !a);      // 0: NOT true = false
+    printf("a && b  = %d\n", a && b);
+    printf("a && c  = %d\n", a && c);
+    printf("a || c  = %d\n", a || c);
+    printf("c || c  = %d\n", c || c);
+    printf("!c      = %d\n", !c);
+    printf("!a      = %d\n", !a);
 
     return 0;
 }
 ```
+
+> [!tip] Testing AND, OR, and NOT
+> - `c = 0` acts as a "false" value in C, while `a` and `b` are non-zero and therefore "true"
+> - `a && b` returns 1 because both are non-zero; `a && c` returns 0 because `c` is zero
+> - `!c` is NOT-false which gives 1; `!a` is NOT-true which gives 0
+
+> [!tip] Short-Circuit Behaviour
+> - In `a && c`, C evaluates `a` first (non-zero, so it continues), then evaluates `c` (zero, so result is 0)
+> - In `a || c`, C evaluates `a` first (non-zero), and immediately returns 1 without evaluating `c`
+> - This short-circuiting matters when the right operand has side effects like function calls
 
 |Line|Code|Explanation|
 |---|---|---|
@@ -177,7 +207,7 @@ int main() {
 
 ## Bitwise Operators
 
-While logical operators treat every non-zero value as simply "true," [[#^bitwise-operators|bitwise operators]] work at the level of individual binary digits within an integer. They are indispensable in embedded systems, device drivers, and any context where individual flag bits must be tested, set, or cleared. C provides six: [[#^bitwise-and|bitwise AND (`&`)]], [[#^bitwise-or|bitwise OR (`|`)]], [[#^bitwise-xor|bitwise XOR (`^`)]], [[#^bitwise-not|bitwise NOT (`~`)]], [[#^left-shift|left shift (`<<`)]], and [[#^right-shift|right shift (`>>`)]] .
+While logical operators treat every non-zero value as simply "true," [[#^bitwise-operators|bitwise operators]] work at the level of individual [[Lecture 3#^binary|binary]] digits within an integer. They are indispensable in embedded systems, device drivers, and any context where individual flag bits must be tested, set, or cleared. C provides six: [[#^bitwise-and|bitwise AND (`&`)]], [[#^bitwise-or|bitwise OR (`|`)]], [[#^bitwise-xor|bitwise XOR (`^`)]], [[#^bitwise-not|bitwise NOT (`~`)]], [[#^left-shift|left shift (`<<`)]], and [[#^right-shift|right shift (`>>`)]] .
 
 > [!info] Converting Decimal to Binary — Quick Refresher Repeatedly divide the number by 2 and record each remainder. Reading the remainders from bottom to top gives the binary representation. For example, 12 → 6(r0) → 3(r0) → 1(r1) → 0(r1), reading upward: **1100**.
 
@@ -217,7 +247,7 @@ While logical operators treat every non-zero value as simply "true," [[#^bitwise
 
 ### Left Shift Operator
 
-The [[#^left-shift|left shift]] (`<<`) operator slides all bits of a value to the left by a specified number of positions. Every vacant position on the right is filled with `0`.
+The left shift (`<<`) operator slides all bits of a value to the left by a specified number of positions. Every vacant position on the right is filled with `0`.
 
 > [!example] Worked Example: 13 << 2 13 in binary: 001101
 > 
@@ -238,7 +268,7 @@ graph TD
 
 ### Right Shift Operator
 
-The [[#^right-shift|right shift]] (`>>`) operator moves all bits to the right by a specified number of positions. Bits that fall off the right edge are discarded.
+The right shift (`>>`) operator moves all bits to the right by a specified number of positions. Bits that fall off the right edge are discarded.
 
 > [!example] Worked Example: 13 >> 2 13 in binary: 1101
 > 
@@ -264,21 +294,32 @@ graph TD
 > [!warning] Live Demo — Check Video This section was a live demonstration and was not captured in the slides. Refer back to the lecture video for the walkthrough.
 
 ```c
-#include <stdio.h>        // provides printf
+#include <stdio.h>
 
 int main() {
-    int a = 12, b = 6;    // 12 = 1100 and 6 = 0110 in binary
+    int a = 12, b = 6;
 
-    printf("a & b   = %d\n", a & b);   // bitwise AND:   1100 & 0110 = 0100 = 4
-    printf("a | b   = %d\n", a | b);   // bitwise OR:    1100 | 0110 = 1110 = 14
-    printf("a ^ b   = %d\n", a ^ b);   // bitwise XOR:   1100 ^ 0110 = 1010 = 10
-    printf("a << 2  = %d\n", a << 2);  // left shift:    12 * 4 = 48
-    printf("a >> 2  = %d\n", a >> 2);  // right shift:   12 / 4 = 3
-    printf("~a      = %d\n", ~a);      // bitwise NOT:   ~12 = -13 (two's complement)
+    printf("a & b   = %d\n", a & b);
+    printf("a | b   = %d\n", a | b);
+    printf("a ^ b   = %d\n", a ^ b);
+    printf("a << 2  = %d\n", a << 2);
+    printf("a >> 2  = %d\n", a >> 2);
+    printf("~a      = %d\n", ~a);
 
     return 0;
 }
 ```
+
+> [!tip] Setting Up Binary-Friendly Values
+> - `a = 12` is `1100` in binary and `b = 6` is `0110` — these map cleanly to 4-bit patterns
+> - Choosing values with clearly different bit patterns makes the bitwise results easy to verify by hand
+> - Convert both to binary before tracing each operation to understand the results
+
+> [!tip] Applying All Six Bitwise Operators
+> - `a & b` gives 4 (0100) — only the bits where both are 1 survive
+> - `a | b` gives 14 (1110) — bits where either is 1 are set
+> - `a ^ b` gives 10 (1010) — bits where they differ are set
+> - `a << 2` multiplies by 4 (48), `a >> 2` divides by 4 (3), and `~a` flips all bits (-13)
 
 |Line|Code|Explanation|
 |---|---|---|
@@ -307,28 +348,38 @@ C's basic assignment operator (`=`) copies a value into a variable. [[#^compound
 #include <stdio.h>
 
 int main() {
-    int a = 5;                           // initial value
+    int a = 5;
 
-    printf("Initial   = %d\n", a);       //  5
+    printf("Initial   = %d\n", a);
 
-    a += 7;                              // a = a + 7  → 12
-    printf("After +=7 = %d\n", a);       // 12
+    a += 7;
+    printf("After +=7 = %d\n", a);
 
-    a *= 2;                              // a = a * 2  → 24
-    printf("After *=2 = %d\n", a);       // 24
+    a *= 2;
+    printf("After *=2 = %d\n", a);
 
-    a -= 4;                              // a = a - 4  → 20
-    printf("After -=4 = %d\n", a);       // 20
+    a -= 4;
+    printf("After -=4 = %d\n", a);
 
-    a /= 5;                              // a = a / 5  → 4
-    printf("After /=5 = %d\n", a);       //  4
+    a /= 5;
+    printf("After /=5 = %d\n", a);
 
-    a %= 3;                              // a = a % 3  → 1
-    printf("After %%=3 = %d\n", a);      //  1
+    a %= 3;
+    printf("After %%=3 = %d\n", a);
 
     return 0;
 }
 ```
+
+> [!tip] Chaining Compound Assignments
+> - Each compound operator modifies `a` in place: `a += 7` changes `a` from 5 to 12, then `a *= 2` changes it from 12 to 24
+> - The chain demonstrates all five compound operators: `+=`, `*=`, `-=`, `/=`, `%=`
+> - Each is shorthand for writing the variable on both sides of the assignment — `a += 7` is `a = a + 7`
+
+> [!tip] Why Compound Assignment Matters
+> - Beyond saving keystrokes, compound operators eliminate the risk of accidentally using two different variable names
+> - `%%` in the format string prints a literal `%` character — a single `%` would be interpreted as a format specifier
+> - Integer division in `/=` truncates the result, just as with the regular `/` operator
 
 |Line|Code|Explanation|
 |---|---|---|
@@ -343,7 +394,7 @@ int main() {
 
 ## Ternary Operator
 
-Operators in C can be classified by how many **operands** they act upon. A [[#^unary-operator|unary operator]] works on a single operand — examples include negation (`-a`), address-of (`&a`), logical NOT (`!a`), and increment (`++a`). A [[#^binary-operator|binary operator]] acts on two operands — examples include `a + b`, `a && b`, and `a & b`. The [[#^ternary-operator|ternary operator]] (`?:`) is C's only three-operand operator.
+Operators in C can be classified by how many **operands** they act upon. A unary operator works on a single operand — examples include negation (`-a`), address-of (`&a`), logical NOT (`!a`), and increment (`++a`). A binary operator acts on two operands — examples include `a + b`, `a && b`, and `a & b`. The ternary operator (`?:`) is C's only three-operand operator.
 
 Its syntax follows this pattern:
 
@@ -351,22 +402,32 @@ Its syntax follows this pattern:
 condition ? value_if_true : value_if_false
 ```
 
-The condition is evaluated first. If it is non-zero (true), the expression returns `value_if_true`; otherwise it returns `value_if_false`. The slide demonstrates finding the maximum of two numbers:
+The [[Lecture 9#^condition|condition]] is evaluated first. If it is non-zero (true), the expression returns `value_if_true`; otherwise it returns `value_if_false`. The slide demonstrates finding the maximum of two numbers:
 
 ```c
 #include <stdio.h>
 
 int main() {
-    int a = 10, b = 15;   // two values to compare
-    int max;              // will store the larger value
+    int a = 10, b = 15;
+    int max;
 
-    max = a > b ? a : b;  // condition: is a > b? if yes max = a, else max = b
+    max = a > b ? a : b;
 
-    printf("Maximum = %d\n", max);  // prints 15 (10 > 15 is false, so b is chosen)
+    printf("Maximum = %d\n", max);
 
     return 0;
 }
 ```
+
+> [!tip] Understanding the Ternary Expression
+> - `a > b ? a : b` evaluates the condition `10 > 15`, which is false (0)
+> - Since the condition is false, the third operand `b` (15) is returned and assigned to `max`
+> - The ternary operator is an expression — it produces a value — unlike `if-else` which is a statement
+
+> [!tip] When to Use the Ternary Operator
+> - Use it for simple, one-line conditional assignments where `if-else` would be unnecessarily verbose
+> - The ternary can appear inside `printf`, variable initialisation, or any expression context where `if-else` cannot go
+> - Avoid nesting ternaries deeply — prefer explicit `if-else` chains when logic has more than two branches
 
 |Line|Code|Explanation|
 |---|---|---|
@@ -392,21 +453,21 @@ graph TD
 
 |Term|Definition|
 |---|---|
-|Logical operators|Operators that combine or invert boolean conditions; always return 0 (false) or 1 (true)|
-|AND operator|The `&&` operator; returns 1 only when both operands are non-zero|
-|OR operator|The `\|` operator; returns 1 when at least one operand is non-zero|
-|NOT operator|The `!` unary operator; inverts the truth value of its single operand|
-|Bitwise operators|Operators that manipulate individual bits of integer values directly|
-|Bitwise AND|The `&` operator; result bit is 1 only where both operand bits are 1|
-|Bitwise OR|The `\|` operator; result bit is 1 where either operand bit is 1|
-|Bitwise XOR|The `^` operator (Exclusive OR); result bit is 1 only where the two bits differ|
-|Bitwise NOT|The `~` operator; flips every bit; on two's complement systems `~n` equals `-(n+1)`|
-|Left shift|The `<<` operator; shifts bits left by k positions, equivalent to multiplying by 2^k|
-|Right shift|The `>>` operator; shifts bits right by k positions, equivalent to dividing by 2^k|
-|Compound assignment|Shorthand operators such as `+=`, `-=`, `*=`, `/=`, `%=` that combine an operation with assignment|
-|Ternary operator|The `?:` operator; evaluates a condition and returns one of two expressions; the only three-operand operator in C|
-|Unary operator|An operator that acts on a single operand (e.g., `-a`, `!a`, `++a`)|
-|Binary operator|An operator that acts on two operands (e.g., `a + b`, `a & b`)|
+| Logical operators | Operators that combine or invert boolean conditions; always return 0 (false) or 1 (true) | ^logical-operators
+| AND operator | The `&&` operator; returns 1 only when both operands are non-zero | ^and-operator
+| OR operator | The `\|` operator; returns 1 when at least one operand is non-zero | ^or-operator
+| NOT operator | The `!` unary operator; inverts the truth value of its single operand | ^not-operator
+| Bitwise operators | Operators that manipulate individual bits of integer values directly | ^bitwise-operators
+| Bitwise AND | The `&` operator; result bit is 1 only where both operand bits are 1 | ^bitwise-and
+| Bitwise OR | The `\|` operator; result bit is 1 where either operand bit is 1 | ^bitwise-or
+| Bitwise XOR | The `^` operator (Exclusive OR); result bit is 1 only where the two bits differ | ^bitwise-xor
+| Bitwise NOT | The `~` operator; flips every bit; on two's complement systems `~n` equals `-(n+1)` | ^bitwise-not
+| Left shift | The `<<` operator; shifts bits left by k positions, equivalent to multiplying by 2^k | ^left-shift
+| Right shift | The `>>` operator; shifts bits right by k positions, equivalent to dividing by 2^k | ^right-shift
+| Compound assignment | Shorthand operators such as `+=`, `-=`, `*=`, `/=`, `%=` that combine an operation with assignment | ^compound-assignment
+| Ternary operator | The `?:` operator; evaluates a condition and returns one of two expressions; the only three-operand operator in C |
+| Unary operator | An operator that acts on a single operand (e.g., `-a`, `!a`, `++a`) |
+| Binary operator | An operator that acts on two operands (e.g., `a + b`, `a & b`) |
 
 > [!example]- Try It Yourself **Exercise 1 — Logical Gate Simulator** Declare two integers `x` and `y` with values of your choice. Print the result of every logical operator combination (`&&`, `||`, `!x`, `!y`) and write a comment on each line explaining why the result is 0 or 1.
 > 

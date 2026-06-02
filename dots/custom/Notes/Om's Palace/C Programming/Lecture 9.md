@@ -6,7 +6,7 @@
 
 ## Concept of Decision Making
 
-In everyday life, decisions arise constantly — which road to take, whether to carry an umbrella, which option to choose at a menu. A **decision** in programming follows exactly the same principle: the program reaches a point where it must choose one of several possible paths based on some condition. Without this ability, a program would blindly execute the same sequence of instructions every single time, regardless of any input or context.
+In everyday life, decisions arise constantly — which road to take, whether to carry an umbrella, which option to choose at a menu. A **decision** in programming follows exactly the same principle: the program reaches a point where it must choose one of several possible paths based on some [[#^condition|condition]]. Without this ability, a program would blindly execute the same sequence of instructions every single time, regardless of any input or context.
 
 > [!info] What is Decision Making? Decision making in programming is the ability of a program to evaluate a **condition** and selectively execute different blocks of code depending on whether that condition is true or false. It becomes necessary whenever more than one option or execution path is available.
 
@@ -27,7 +27,7 @@ C provides three main constructs for decision making: the [[#^if-statement|if st
 
 ## Understanding If Statement
 
-The **if statement** is the most fundamental decision-making tool in C. It wraps a block of code inside a conditional gate: the block executes only when the given [[#^condition|condition]] evaluates to true (any non-zero value). If the condition is false (zero), the entire block is skipped without executing a single line inside it, and the program continues with whatever comes after the closing brace.
+The **if statement** is the most fundamental decision-making tool in C. It wraps a block of code inside a conditional gate: the block executes only when the given condition evaluates to true (any non-zero value). If the condition is false (zero), the entire block is skipped without executing a single line inside it, and the program continues with whatever comes after the closing brace.
 
 ### Syntax
 
@@ -53,36 +53,45 @@ graph TD
 ### Worked Example — Checking a Positive Number
 
 ```c
-#include <stdio.h>       // Gives access to printf and scanf
+#include <stdio.h>
 
-void main()              // Entry point of the program
+void main()
 {
-    int N;               // Declare an integer variable N in RAM
-    printf("Enter N:");  // Display prompt to the user
-    scanf("%d", &N);     // Read an integer from keyboard; store it at the address of N
-    if (N > 0)           // Evaluate: is N strictly greater than zero?
+    int N;
+    printf("Enter N:");
+    scanf("%d", &N);
+    if (N > 0)
     {
-        printf("N is greater than 0");  // Only runs when N > 0 is true
+        printf("N is greater than 0");
     }
-                         // If N <= 0, nothing is printed; program exits silently
 }
 ```
 
 > [!warning] Non-Standard Code The slide uses `void main()` which is not standard C. The correct signature per the C standard is `int main()`, which returns an integer exit code to the operating system. `void main()` is non-portable and may produce compiler warnings or fail on strict compilers. All code in these slides uses this form — treat every occurrence as `int main()` in your own programs.
 
+> [!tip] Including Standard Libraries and Getting Input
+> - `#include <stdio.h>` imports the Standard Input/Output header so [[Lecture 2#^printf|printf]] and [[Lecture 2#^scanf|scanf]] are available
+> - `scanf("%d", &N)` reads one integer from the keyboard and stores it at the memory address of `N`
+> - The [[Lecture 6#^address-of|`&`]] (address-of [[Lecture 6#^operator|operator]]) is required because `scanf` needs to know where in memory to write the value
+
+> [!tip] Evaluating the If Condition
+> - `if (N > 0)` uses a [[Lecture 6#^relational-operators|relational operator]] to test whether `N` is strictly greater than zero
+> - If the condition evaluates to non-zero (true), the block inside `{}` executes
+> - If `N` is zero or negative, the entire block is skipped and the program exits silently
+
 |Line|Code|Explanation|
 |---|---|---|
-|1|`#include <stdio.h>`|Includes the standard I/O library; required for [[printf]] and [[scanf]]|
+|1|`#include <stdio.h>`|Includes the standard I/O library; required for `printf` and `scanf`|
 |3|`void main()`|Non-standard entry point — use `int main()` instead|
 |5|`int N;`|Allocates an integer variable N in RAM|
 |6|`printf("Enter N:");`|Prints a prompt asking the user to type a number|
 |7|`scanf("%d", &N);`|Reads one integer from the keyboard and stores it at N's memory address|
-|8|`if (N > 0)`|Condition check: evaluates the [[#^relational-operator|
+|8|`if (N > 0)`|Condition check: evaluates the relational expression `N > 0`|
 |10|`printf("N is greater than 0");`|Executes only when line 8's condition is true|
 
 > [!tip] Relational Operators The `>` symbol is a **relational operator** — it compares two values and produces 1 (true) or 0 (false). The full set includes `>` (greater than), `<` (less than), `>=` (greater than or equal), `<=` (less than or equal), `==` (equal to), and `!=` (not equal to).
 
-> [!bug] Omitting the Braces When an if block contains only a single statement, braces are technically optional and the compiler will accept it. However, omitting them is a very common source of bugs — if you later add a second line intending it to be inside the if, it will actually execute unconditionally. Always use braces, even for single-statement blocks.
+> [!bug] Omitting the Braces When an if block contains only a single statement, braces are technically optional and the [[Lecture 1#^compiler|compiler]] will accept it. However, omitting them is a very common source of bugs — if you later add a second line intending it to be inside the if, it will actually execute unconditionally. Always use braces, even for single-statement blocks.
 
 ---
 
@@ -116,28 +125,38 @@ graph TD
 
 ### Worked Example — Even or Odd
 
-The [[#^modulo-operator|modulo operator]] `%` computes the integer remainder after division. A number is even when dividing it by 2 leaves no remainder (remainder equals 0); otherwise the number is odd.
+The [[Lecture 6#^modulo-operator|modulo operator]] `%` computes the integer remainder after division. A number is even when dividing it by 2 leaves no remainder (remainder equals 0); otherwise the number is odd.
 
 ```c
-#include <stdio.h>       // Standard I/O library
+#include <stdio.h>
 
-void main()              // Entry point
+void main()
 {
-    int N;               // Variable to store user's number
-    printf("Enter N:");  // Prompt the user
-    scanf("%d", &N);     // Read and store the integer
-    if (N % 2 == 0)      // Modulo: remainder of N divided by 2; if 0, N is even
+    int N;
+    printf("Enter N:");
+    scanf("%d", &N);
+    if (N % 2 == 0)
     {
-        printf("Even");  // Condition true — N is evenly divisible by 2
+        printf("Even");
     }
     else
     {
-        printf("Odd");   // Condition false — remainder was 1, so N is odd
+        printf("Odd");
     }
 }
 ```
 
 > [!warning] Non-Standard Code `void main()` appears here again. In standard C, use `int main()` with a `return 0;` at the end. See the note in the previous section.
+
+> [!tip] Testing for Even or Odd
+> - `N % 2` computes the remainder when `N` is divided by 2 — the result is either 0 or 1
+> - `== 0` checks if the remainder is zero, meaning `N` is evenly divisible by 2
+> - If the condition is true, `"Even"` prints; otherwise the `else` branch prints `"Odd"`
+
+> [!tip] The Else Branch as a Guaranteed Fallback
+> - The `else` block runs whenever the `if` condition is false — there is no situation where neither block executes
+> - This guarantee makes if-else ideal for binary decisions like even/odd, pass/fail, or positive/negative
+> - Exactly one of the two blocks always executes — never both, never neither
 
 |Line|Code|Explanation|
 |---|---|---|
@@ -181,7 +200,6 @@ else if (condition3)
 {
     // Block B3 — runs when conditions 1 and 2 are false AND condition3 is true
 }
-// ... additional else if branches as needed ...
 else
 {
     // Default block BE — runs only when ALL conditions above are false
@@ -208,25 +226,35 @@ graph TD
 ### Worked Example — Day of the Week
 
 ```c
-#include <stdio.h>              // Standard I/O library
+#include <stdio.h>
 
-void main()                     // Entry point
+void main()
 {
-    int day;                    // Stores the day number entered by user (1–7)
-    printf("Enter day:");       // Prompt user for input
-    scanf("%d", &day);          // Read and store the integer
-    if (day == 1)   printf("Sunday");                         // 1 maps to Sunday
-    else if (day == 2) printf("Monday");                      // 2 maps to Monday
-    else if (day == 3) printf("Tuesday");                     // 3 maps to Tuesday
-    else if (day == 4) printf("Wednesday");                   // 4 maps to Wednesday
-    else if (day == 5) printf("Thursday");                    // 5 maps to Thursday
-    else if (day == 6) printf("Friday");                      // 6 maps to Friday
-    else if (day == 7) printf("Saturday");                    // 7 maps to Saturday
-    else printf("Please enter day between 1 to 7");           // Default: invalid input
+    int day;
+    printf("Enter day:");
+    scanf("%d", &day);
+    if (day == 1)   printf("Sunday");
+    else if (day == 2) printf("Monday");
+    else if (day == 3) printf("Tuesday");
+    else if (day == 4) printf("Wednesday");
+    else if (day == 5) printf("Thursday");
+    else if (day == 6) printf("Friday");
+    else if (day == 7) printf("Saturday");
+    else printf("Please enter day between 1 to 7");
 }
 ```
 
 > [!warning] Non-Standard Code `void main()` is used again here. Additionally, the slide writes each branch as a single-line if-else without braces. While syntactically valid in C, it is safer and more maintainable to always include `{}` around each branch — a habit that prevents subtle bugs when the code is extended later.
+
+> [!tip] Top-to-Bottom Evaluation
+> - The program tests `day == 1` first, then `day == 2`, then `day == 3`, and so on
+> - As soon as one condition is true, its `printf` executes and all remaining branches are skipped
+> - If `day` is outside the range 1–7, only the final `else` branch runs, printing an error message
+
+> [!tip] Why Use a Ladder Instead of Separate If Statements
+> - With separate `if` statements, every condition would be evaluated even after one has already matched
+> - With a ladder, evaluation stops at the first true condition — this is both faster and semantically clearer
+> - For mutually exclusive outcomes (a number can only be one day), a ladder correctly represents the logic
 
 |Line|Code|Explanation|
 |---|---|---|
@@ -250,14 +278,14 @@ void main()                     // Entry point
 
 |Term|Definition|
 |---|---|
-|Decision Making|The ability of a program to evaluate a condition and selectively execute one of several possible code paths based on whether the condition is true or false|
-|if statement|A control structure that evaluates a condition and executes its enclosed block only when that condition is non-zero (true); skips the block entirely when the condition is zero (false)|
-|if-else statement|A control structure guaranteeing that exactly one of two blocks always executes — the if block when the condition is true, and the else block when it is false|
-|if-else if-else ladder|A chained series of conditions evaluated strictly top-to-bottom; the block belonging to the first true condition executes and all remaining branches are skipped; a default else handles the case where no condition matches|
-|condition|An expression placed inside the parentheses of an if statement; any non-zero value is treated as true and causes the block to execute; zero is treated as false and causes the block to be skipped|
-|Modulo Operator|The `%` operator that returns the integer remainder after division (e.g., 7 % 2 evaluates to 1); commonly used to test divisibility, such as checking whether a number is even or odd|
-|Relational Operator|A comparison operator (`>`, `<`, `>=`, `<=`, `==`, `!=`) that compares two values and produces 1 (true) or 0 (false); used to form conditions in if statements|
-|else|The C keyword that introduces the false branch of an if-else construct; it has no condition of its own and executes only when all preceding if and else if conditions were false|
+| Decision Making | The ability of a program to evaluate a condition and selectively execute one of several possible code paths based on whether the condition is true or false | ^decision-making
+| if statement | A control structure that evaluates a condition and executes its enclosed block only when that condition is non-zero (true); skips the block entirely when the condition is zero (false) | ^if-statement
+| if-else statement | A control structure guaranteeing that exactly one of two blocks always executes — the if block when the condition is true, and the else block when it is false | ^if-else-statement
+| if-else if-else ladder | A chained series of conditions evaluated strictly top-to-bottom; the block belonging to the first true condition executes and all remaining branches are skipped; a default else handles the case where no condition matches | ^if-else-ladder
+| condition | An expression placed inside the parentheses of an if statement; any non-zero value is treated as true and causes the block to execute; zero is treated as false and causes the block to be skipped | ^condition
+| Modulo Operator | The `%` operator that returns the integer remainder after division (e.g., 7 % 2 evaluates to 1); commonly used to test divisibility, such as checking whether a number is even or odd |
+| Relational Operator | A comparison operator (`>`, `<`, `>=`, `<=`, `==`, `!=`) that compares two values and produces 1 (true) or 0 (false); used to form conditions in if statements |
+| else | The C keyword that introduces the false branch of an if-else construct; it has no condition of its own and executes only when all preceding if and else if conditions were false | ^else-keyword
 
 > [!example]- Try It Yourself **Exercise 1 — Positive, Negative, or Zero** Write a program that reads an integer N from the user and prints "Positive" if N is greater than zero, "Negative" if N is less than zero, or "Zero" if N equals zero. Use an if-else if-else ladder.
 > 

@@ -13,32 +13,17 @@ This lecture builds the conceptual foundation for writing and understanding C pr
 - Sample program
 
 ---
----
-
-## tags: [c-programming, lecture] lecture: 4 topic: Hardware, Software, and Data Types prerequisites: Basic C Program Structure
-
-# Lecture 4 — Hardware, Software, and Data Types
-
-## Agenda
-
-This lecture builds the conceptual foundation for writing and understanding C programs running on real machines:
-
-- Concept of hardware and software
-- Understanding data types
-- Sample program
-
----
 
 ## Concept of Hardware & Software
 
 ### Hardware
 
-[[#^hardware|Hardware]] refers to all the physical, tangible components that constitute a computer system — the parts you can see, touch, and physically interact with. Without hardware, there is no machine for any software to run on.
+[[#^hardware|Hardware]] refers to all the physical, tangible components that constitute a computer system — the parts you can see, touch, and physically interact with. Without hardware, there is no machine for any [[#^software|software]] to run on.
 
 Common examples of hardware components include:
 
-- The **CPU** (Central Processing Unit) — executes instructions and performs all computations
-- **RAM** (Random Access Memory) — temporarily holds active data and code while the computer is on
+- The **[[Lecture 2#^cpu|CPU]]** (Central Processing Unit) — executes instructions and performs all computations
+- **[[Lecture 2#^ram|RAM]]** (Random Access Memory) — temporarily holds active data and code while the computer is on
 - The **hard disk or SSD** — permanently stores files, programs, and the operating system
 - **Input devices** such as a keyboard and mouse
 - **Output devices** such as a monitor and printer
@@ -54,7 +39,7 @@ An [[#^instruction|instruction]] is a single command issued to a computer proces
 
 A [[#^program|program]] is a sequence of such instructions arranged in logical order to carry out a meaningful task. The key word is _logical_ — instructions must follow a coherent plan to produce a useful result.
 
-[[#^software|Software]] is a broader collection: a group of programs bundled together under one name to provide a cohesive set of capabilities. Microsoft Excel, for instance, is software comprising many individual programs working together to deliver a full spreadsheet environment.
+Software is a broader collection: a group of programs bundled together under one name to provide a cohesive set of capabilities. Microsoft Excel, for instance, is software comprising many individual programs working together to deliver a full spreadsheet environment.
 
 > [!tip] The Three-Level Progression Commit this to memory: a single **instruction** does one thing; an ordered set of instructions forms a **program**; a collection of programs makes **software**. This progression maps directly onto how C code is compiled and executed on a machine.
 
@@ -91,9 +76,9 @@ graph TD
 
 ## Understanding Data Types
 
-A [[#^data-type|data type]] tells the compiler two essential things about a variable: what kind of value it holds, and how many bytes of memory to reserve for it. A whole number like `42` is stored very differently in memory from a decimal like `3.14` or a character like `'A'`.
+A [[#^data-type|data type]] tells the [[Lecture 1#^compiler|compiler]] two essential things about a variable: what kind of value it holds, and how many bytes of memory to reserve for it. A whole number like `42` is stored very differently in memory from a decimal like `3.14` or a character like `'A'`.
 
-Without data types, the compiler would have no way of interpreting the raw bytes at a memory address — the binary pattern for the integer 65 and the character `'A'` are identical. The type is what assigns meaning to those bytes.
+Without data types, the compiler would have no way of interpreting the raw bytes at a memory address — the [[Lecture 3#^binary|binary]] pattern for the integer 65 and the character `'A'` are identical. The type is what assigns meaning to those bytes.
 
 > [!question] Why Does the Compiler Need Type Information? Memory is just a flat sequence of bytes. The same bit pattern can represent entirely different things depending on how it is interpreted. Data types are the contract between you and the compiler specifying exactly what a group of bytes represents — and what operations make sense on it.
 
@@ -121,7 +106,7 @@ graph TD
 
 **[[#^double|double]]** also stores decimal numbers, but at twice the precision of `float`. It uses 8 bytes and provides approximately 15–16 significant decimal digits. The name comes from _double-precision floating point_.
 
-**[[#^void|void]]** represents the explicit absence of a value. It appears in two main roles: marking a function that returns nothing (`void greet()`), and defining generic pointers (`void *ptr`) that can hold the address of any type.
+**[[#^void|void]]** represents the explicit absence of a value. It appears in two main roles: marking a [[#^function|function]] that returns nothing (`void greet()`), and defining generic pointers (`void *ptr`) that can hold the address of any type.
 
 > [!info] Choosing float vs double Prefer `double` for general-purpose decimal arithmetic — its extra precision prevents rounding errors from accumulating across many operations. Reserve `float` for constrained environments like embedded systems or large graphics buffers where the trade-off in precision is deliberate and justified.
 
@@ -129,7 +114,7 @@ graph TD
 
 [[#^derived-data-type|Derived data types]] are constructed on top of primitive types, extending them with new structure or behaviour. The term "derived" reflects their dependence on the foundational types.
 
-A **[[#^function|function]]** is a named, reusable block of code that accepts input parameters, performs a defined task, and optionally returns a result. Functions are a derived type because their parameter types and return type are always defined in terms of existing types.
+A **function** is a named, reusable block of code that accepts input parameters, performs a defined task, and optionally returns a result. Functions are a derived type because their parameter types and return type are always defined in terms of existing types.
 
 An **[[#^array|array]]** is a fixed-size, ordered collection of elements all sharing the same data type, stored in consecutive memory locations. Declaring `int scores[5]` reserves exactly five adjacent integers in memory, each accessible by a zero-based index.
 
@@ -147,7 +132,7 @@ A **[[#^union|union]]** resembles a `struct` in syntax, but all its members shar
 
 An **[[#^enum|enum]]** (enumeration) defines a set of named integer constants. Rather than representing weekdays as `0`, `1`, `2`, an enum lets you write `MON`, `TUE`, `WED` — code that is self-documenting and far less prone to accidental misuse.
 
-**[[#^typedef|typedef]]** creates an alias for an existing type name. After writing `typedef unsigned int uint;`, you can use `uint` anywhere you would normally write `unsigned int`, producing shorter and more expressive declarations throughout the codebase.
+**[[#^typedef|Typedef]]** creates an alias for an existing type name. After writing `typedef unsigned int uint;`, you can use `uint` anywhere you would normally write `unsigned int`, producing shorter and more expressive declarations throughout the codebase.
 
 > [!tip] Choosing the Right User-Defined Type Reach for `struct` when a concept naturally groups several pieces of data together (a student record, a 2D point, a calendar date). Use `enum` when a variable represents a choice from a small, fixed, named set. Defer `union` until you have a solid grasp of memory layout.
 
@@ -157,26 +142,46 @@ An **[[#^enum|enum]]** (enumeration) defines a set of named integer constants. R
 
 > [!warning] Live Demo — Check Video This section was a live demonstration and was not captured in the slides. Refer back to the lecture video for the walkthrough.
 
-The following program puts all four main primitive types to work. It declares one variable of each type, assigns a value, then prints every variable to the console using [[Lecture 1#^printf|printf]] with the type-appropriate format specifier.
+The following program puts all four main primitive types to work. It declares one variable of each type, assigns a value, then prints every variable to the console using [[Lecture 2#^printf|printf]] with the type-appropriate format specifier.
 
 ```c
-#include <stdio.h>    // standard I/O library — needed for printf
+#include <stdio.h>
 
-int main() {          // program execution always begins in main
+int main() {
 
-    int    age   = 20;                  // int: whole number, 4 bytes
-    char   grade = 'A';                 // char: single character, 1 byte
-    float  gpa   = 9.5f;                // float: decimal, 4 bytes (f suffix = float literal)
-    double pi    = 3.14159265358979;    // double: higher-precision decimal, 8 bytes
+    int    age   = 20;
+    char   grade = 'A';
+    float  gpa   = 9.5f;
+    double pi    = 3.14159265358979;
 
-    printf("Age   : %d\n",   age);      // %d   is the format specifier for int
-    printf("Grade : %c\n",   grade);    // %c   is the format specifier for char
-    printf("GPA   : %.2f\n", gpa);      // %.2f prints float to 2 decimal places
-    printf("Pi    : %lf\n",  pi);       // %lf  is the format specifier for double
+    printf("Age   : %d\n",   age);
+    printf("Grade : %c\n",   grade);
+    printf("GPA   : %.2f\n", gpa);
+    printf("Pi    : %lf\n",  pi);
 
-    return 0;   // exit code 0 signals successful completion to the OS
+    return 0;
 }
 ```
+
+> [!tip] Including Standard Libraries
+> - `#include <stdio.h>` imports the Standard Input/Output header file, making `printf` available
+> - Every C program that prints output or reads input must include this directive
+> - Without it, the compiler will not recognise `printf` and will refuse to compile
+
+> [!tip] Declaring Variables of Each Primitive Type
+> - `int age = 20` reserves 4 bytes for a whole number; `char grade = 'A'` reserves 1 byte for a character
+> - `float gpa = 9.5f` reserves 4 bytes for a single-precision decimal — the `f` suffix prevents the compiler from treating the literal as a `double`
+> - `double pi = 3.14159265358979` reserves 8 bytes for a high-precision decimal value
+
+> [!tip] Printing with Format Specifiers
+> - Each `printf` call uses the format specifier matching its variable's type: `%d` for `int`, `%c` for `char`, `%.2f` for `float`, `%lf` for `double`
+> - `%.2f` rounds the output to exactly 2 decimal places — the `.2` is a precision modifier
+> - Mismatching a specifier with the wrong type produces garbage output or undefined behaviour
+
+> [!tip] Exiting the Program
+> - `return 0;` sends exit code `0` back to the operating system when `main` finishes
+> - By convention, `0` means the program completed successfully with no errors
+> - Because `main` is declared as `int`, this return statement is required
 
 |Line|Code|Explanation|
 |---|---|---|
@@ -210,28 +215,28 @@ graph TD
 
 |Term|Definition|
 |---|---|
-|Hardware|The physical, tangible components of a computer — CPU, RAM, storage, and I/O devices|
-|Software|A collection of programs bundled together under one name to provide a cohesive set of capabilities|
-|Instruction|A single command given to a processor directing it to carry out exactly one specific operation|
-|Program|An ordered sequence of instructions that together carry out a meaningful task|
-|System Software|Software that manages and operates hardware, acting as a bridge between applications and the physical machine|
-|Application Software|End-user software designed to perform specific real-world tasks, running on top of the operating system|
-|Data Type|A classification that tells the compiler what kind of value a variable holds and how many bytes of memory to allocate for it|
-|Primitive Data Type|A built-in C type that directly represents a simple value — includes int, char, float, double, and void|
-|Derived Data Type|A type constructed from primitive types — includes functions, arrays, and pointers|
-|User-Defined Data Type|A custom type invented by the programmer using struct, union, enum, or typedef|
-|int|Primitive type for whole numbers; typically 4 bytes with a range of approximately −2.1 billion to +2.1 billion|
-|char|Primitive type for a single character, stored internally as a 1-byte ASCII integer|
-|float|Primitive type for single-precision decimal numbers; 4 bytes, approximately 6–7 significant digits|
-|double|Primitive type for double-precision decimal numbers; 8 bytes, approximately 15–16 significant digits|
-|void|Primitive type representing the absence of a value; used for functions that return nothing and for generic pointers|
-|Function|A named, reusable block of code that accepts parameters, performs a defined task, and optionally returns a value|
-|Array|A fixed-size collection of same-type elements stored in consecutive memory, accessible by zero-based index|
-|Pointer|A variable whose value is a memory address rather than a conventional data value|
-|Structure|A user-defined type (struct) that groups multiple variables of different types under one name|
-|Union|A user-defined type where all members share the same memory location; only one member holds a valid value at a time|
-|Enum|A user-defined type that defines a set of named integer constants to improve code readability and safety|
-|Typedef|A C mechanism for creating an alias for an existing type name to simplify and clarify declarations|
+| Hardware | The physical, tangible components of a computer — CPU, RAM, storage, and I/O devices | ^hardware
+| Software | A collection of programs bundled together under one name to provide a cohesive set of capabilities | ^software
+| Instruction | A single command given to a processor directing it to carry out exactly one specific operation | ^instruction
+| Program | An ordered sequence of instructions that together carry out a meaningful task | ^program
+| System Software | Software that manages and operates hardware, acting as a bridge between applications and the physical machine | ^system-software
+| Application Software | End-user software designed to perform specific real-world tasks, running on top of the operating system | ^application-software
+| Data Type | A classification that tells the compiler what kind of value a variable holds and how many bytes of memory to allocate for it | ^data-type
+| Primitive Data Type | A built-in C type that directly represents a simple value — includes int, char, float, double, and void | ^primitive-data-type
+| Derived Data Type | A type constructed from primitive types — includes functions, arrays, and pointers | ^derived-data-type
+| User-Defined Data Type | A custom type invented by the programmer using struct, union, enum, or typedef | ^user-defined-data-type
+| int | Primitive type for whole numbers; typically 4 bytes with a range of approximately −2.1 billion to +2.1 billion | ^int
+| char | Primitive type for a single character, stored internally as a 1-byte ASCII integer | ^char
+| float | Primitive type for single-precision decimal numbers; 4 bytes, approximately 6–7 significant digits | ^float
+| double | Primitive type for double-precision decimal numbers; 8 bytes, approximately 15–16 significant digits | ^double
+| void | Primitive type representing the absence of a value; used for functions that return nothing and for generic pointers | ^void
+| Function | A named, reusable block of code that accepts parameters, performs a defined task, and optionally returns a value | ^function
+| Array | A fixed-size collection of same-type elements stored in consecutive memory, accessible by zero-based index | ^array
+| Pointer | A variable whose value is a memory address rather than a conventional data value | ^pointer
+| Structure | A user-defined type (struct) that groups multiple variables of different types under one name | ^structure
+| Union | A user-defined type where all members share the same memory location; only one member holds a valid value at a time | ^union
+| Enum | A user-defined type that defines a set of named integer constants to improve code readability and safety | ^enum
+| Typedef | A C mechanism for creating an alias for an existing type name to simplify and clarify declarations | ^typedef
 
 > [!example]- Try It Yourself **Exercise 1 — Declare and Print All Primitive Types** Write a C program that declares one variable of each primitive type (`int`, `char`, `float`, `double`), assigns values of your choice, and prints each one with `printf` using the correct format specifier. Verify the output is exactly what you expected.
 > 
