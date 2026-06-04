@@ -13,7 +13,6 @@ cat << 'EOF'
 Custom Updater Script for illogical-impulse
 
 This script forcefully updates configuration files.
-Custom additions in ~/.config/hypr/custom will be preserved.
 
 WARNING: This will overwrite your existing configs!
 
@@ -304,7 +303,7 @@ fi
 
 # Confirmation prompt (skip if dry-run)
 if [[ "$AUTO_CONFIRM" != true ]] && [[ "$DRY_RUN" != true ]]; then
-  echo -e "${STY_YELLOW}WARNING: This script will overwrite existing configs!${STY_RST}"
+  echo -e "${STY_YELLOW}WARNING: This script will overwrite your existing configs!${STY_RST}"
   if [[ "$SKIP_BACKUP" == true ]]; then
     echo -e "${STY_RED}BACKUP IS DISABLED!${STY_RST}"
   fi
@@ -362,8 +361,6 @@ update_file() {
 update_dir() {
   local src="$1"
   local dest="$2"
-  shift 2
-  local exclude_patterns=("$@")
 
   if [[ ! -d "$src" ]]; then
     echo -e "${STY_YELLOW}Source directory does not exist: $src${STY_RST}"
@@ -371,28 +368,16 @@ update_dir() {
   fi
 
   if [[ "$DRY_RUN" == true ]]; then
-    echo -e "${STY_CYAN}[DRY RUN] Would update directory: $dest${STY_RST}"
+    echo -e "${STY_CYAN}[DRY RUN] Would wipe and replace directory: $dest${STY_RST}"
   else
     backup_item "$dest"
 
     if [[ -d "$dest" ]]; then
-      # Remove existing directory
       rm -rf "$dest"
     fi
 
     mkdir -p "$(dirname "$dest")"
-
-    if [[ ${#exclude_patterns[@]} -gt 0 ]]; then
-      # Copy with excludes using rsync
-      local exclude_args=()
-      for pattern in "${exclude_patterns[@]}"; do
-        exclude_args+=(--exclude "$pattern")
-      done
-      rsync -a "${exclude_args[@]}" "$src/" "$dest/"
-    else
-      # Simple copy
-      cp -r "$src" "$dest"
-    fi
+    cp -r "$src" "$dest"
     echo -e "${STY_GREEN}Updated: $dest${STY_RST}"
   fi
 }
@@ -410,26 +395,7 @@ fi
 # Update Hyprland configs
 if [[ "$ONLY_HYPRLAND" == true ]] || [[ "$ONLY_QUICKSHELL" == false ]]; then
   echo -e "${STY_CYAN}Updating Hyprland configs...${STY_RST}"
-
-  # Main hyprland config (sync)
-  update_dir "${REPO_ROOT}/dots/.config/hypr/hyprland" "$XDG_CONFIG_HOME/hypr/hyprland"
-
-  # Individual config files
-  for file in hypr{land,lock}.conf {monitors,workspaces}.conf; do
-    if [[ -f "${REPO_ROOT}/dots/.config/hypr/$file" ]]; then
-      update_file "${REPO_ROOT}/dots/.config/hypr/$file" "$XDG_CONFIG_HOME/hypr/$file"
-    fi
-  done
-
-  # Hypridle config
-  if [[ -f "${REPO_ROOT}/dots/.config/hypr/hypridle.conf" ]]; then
-    update_file "${REPO_ROOT}/dots/.config/hypr/hypridle.conf" "$XDG_CONFIG_HOME/hypr/hypridle.conf"
-  fi
-
-  # Custom directory (preserve .local files)
-  if [[ -d "${REPO_ROOT}/dots/.config/hypr/custom" ]]; then
-    update_dir "${REPO_ROOT}/dots/.config/hypr/custom" "$XDG_CONFIG_HOME/hypr/custom" "*.local" "*.backup" "*.bak"
-  fi
+  update_dir "${REPO_ROOT}/dots/.config/hypr" "$XDG_CONFIG_HOME/hypr"
 fi
 
 # Update other configs (only if not doing partial update)
@@ -446,7 +412,7 @@ if [[ "$ONLY_QUICKSHELL" == false ]] && [[ "$ONLY_HYPRLAND" == false ]]; then
 
   # Fish config
   if [[ -d "${REPO_ROOT}/dots/.config/fish" ]]; then
-    update_dir "${REPO_ROOT}/dots/.config/fish" "$XDG_CONFIG_HOME/fish" "conf.d"
+    update_dir "${REPO_ROOT}/dots/.config/fish" "$XDG_CONFIG_HOME/fish"
   fi
 
   # Fontconfig
