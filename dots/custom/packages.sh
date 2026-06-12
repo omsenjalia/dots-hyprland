@@ -29,6 +29,8 @@ custom_packages() {
       vesktop
       obsidian
       hermes-agent-git
+      hplip # printer
+      foo2zjs # printer
 
     # Add your packages below, one per line, keeping the # prefix:
     # example-package
