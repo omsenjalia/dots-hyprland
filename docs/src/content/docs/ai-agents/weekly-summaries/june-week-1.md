@@ -1,9 +1,14 @@
 ---
-title: "Add printer packages hplip and foo2zjs" 
-date: 2026-06-12
-commit: 51cbe5ef95ae432c3a8db85b2bd2d4fffcd8a4fb
-author: om
+title: "Weekly Summary: june week 1"
+date: 14/06/26
+week_start: 07/06/26
+week_end: 13/06/26
 ---
+
+### Add printer packages hplip and foo2zjs 
+
+**Date:** 12/06/26 | **Author:** om | **Commit:** `51cbe5e`
+
 
 ## Changed Files
 
@@ -20,3 +25,6 @@ Add printer packages hplip and foo2zjs
 <!-- AI agents: fill this in after working on related code.
      Explain WHY changes were made, any gotchas, and what
      other agents should know about this change. -->
+
+---
+
